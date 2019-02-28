@@ -1,0 +1,16 @@
+[package]
+name = "vdot"
+description = "Create your .env file using Vault."
+version = "0.1.0"
+authors = ["Samuel Parkinson <sam.james.parkinson@gmail.com>"]
+edition = "2018"
+repository = "https://github.com/sjparknson/vdot"
+readme = "README.md"
+license = "MIT"
+
+[badges]
+travis-ci = { repository = "sjparkinson/vdot", branch = "master" }
+
+[dependencies]
+docopt = "1.0.2"
+reqwest = "0.9.10"
