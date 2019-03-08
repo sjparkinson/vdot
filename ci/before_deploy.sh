@@ -19,7 +19,7 @@ main() {
             ;;
     esac
 
-    sed -i '' -e "s/\"0.0.0\"/\"${TRAVIS_TAG#"v"}\"/" Cargo.toml
+    perl -i -pe "s/\"0.0.0\"/\"${TRAVIS_TAG#"v"}\"/" Cargo.toml
 
     test -f Cargo.lock || cargo generate-lockfile
 
