@@ -36,7 +36,7 @@ before_deploy:
 
 deploy:
   - provider: script
-    script: ./ci/publish.sh
+    script: sh ci/publish.sh
     on:
       condition: $TARGET = x86_64-unknown-linux-musl
       tags: true
