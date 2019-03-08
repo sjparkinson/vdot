@@ -22,6 +22,10 @@ curl -LSfs https://japaric.github.io/trust/install.sh | \
   sh -s -- --git sjparkinson/vdot --target x86_64-apple-darwin --to /usr/local/bin
 ```
 
+**Windows**
+
+You can download a [`vdot.exe` from the latest release](https://github.com/sjparkinson/vdot/releases/latest).
+
 ## Usage
 
 ```

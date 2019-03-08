@@ -23,12 +23,12 @@ main() {
 
     test -f Cargo.lock || cargo generate-lockfile
 
-    cross rustc --bin vdot --target "$TARGET" --release -- -C lto
+    cargo rustc --bin vdot --target "$TARGET" --release -- -C lto
 
     cp "target/$TARGET/release/vdot" "$stage/"
 
     cd "$stage"
-    tar czf "$src/$CRATE_NAME-$TRAVIS_TAG-$TARGET.tar.gz" ./*
+    tar czf "$src/$(echo "$TRAVIS_REPO_SLUG" | cut -d / -f 2)-$TRAVIS_TAG-$TARGET.tar.gz" ./*
     cd "$src"
 
     rm -rf "$stage"

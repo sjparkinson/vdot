@@ -1,51 +1,44 @@
 # Based on the "trust" template v0.1.2
 # https://github.com/japaric/trust/tree/v0.1.2
 
-dist: trusty
 language: rust
-services: docker
-sudo: required
-
-env:
-  global:
-    - CRATE_NAME=vdot
 
 matrix:
   include:
     # Linux
     - env: TARGET=x86_64-unknown-linux-musl
+      os: linux
 
     # OSX
     - env: TARGET=x86_64-apple-darwin
       os: osx
 
 before_install:
-  - set -e
   - rustup self update
 
-install:
-  - sh ci/install.sh
-  - source ~/.cargo/env || true
-
 script:
-  - cross build --target "$TARGET"
-  - cross test --target "$TARGET"
-
-after_script: set +e
+  - cargo build
+  - cargo test
 
 before_deploy:
   - sh ci/before_deploy.sh
 
 deploy:
-  provider: releases
-  api_key:
-    secure: PRlzw2nxqDXJlI2MXmob7VGB0sE4w9Y9SnsPGC8Ot7zhAP/Dxvcdu8ZZepjVsie5WZK5V0mlNw6siEvjgWQmKo4BZKV/JVLRoF+XIQp5RcZFNA9ooUf86iMElPZSWjm4RR1eQUtr6tssyPCRnFOhnm4fIbb2cQ/5nJq6MTxIz8K9odqU5cRp6WBTkfIbYWBkXKrs2KObe/RwxWrQQMu8nHNxXAaSNvfuZOqCnaWraqZ9zKN04WFw1Gv6gftXy6UUUeeKB43x9TZiPXNwq5nDGJxCTFDiKT2zdQv2eOns1287cgCYOkLkEJRiQPFYbh9xJ8XaP18VaYsSH3Bjupql++xbgsHgNtfktepZAxyItoQ5jDcMCanJYCpZAOKtfAgSP6MSmLA+O5asJMcll7yYIY94J6YRRx9J5Fm/E56bq9RUWjr1Z15oxyOJlaEShqpdR9dJ6gGtxnJhLeL9azcF6meLERZA+V3+aHj1/5Swhtor0W1yUkkuXKm0/OCemsUi08zFmtwuOB/lo6d23y3jtN0hRexMZPUpuBpqXxwwFWKKVwA2kCxSs13OS+qF7M1dGDi2+2qNGCZ2mh4+4pf9+R/30Da78Fq0/xaVCqsgzfU9KWX4jORkuTc+LyqUGELNbZv0d3Gmf1igyrPlW1bItTJokMrmbxuo4mxSwymSHas=
-  file_glob: true
-  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
-  on:
-    condition: $TRAVIS_RUST_VERSION = stable
-    tags: true
-  skip_cleanup: true
+  - provider: releases
+    api_key:
+      secure: PRlzw2nxqDXJlI2MXmob7VGB0sE4w9Y9SnsPGC8Ot7zhAP/Dxvcdu8ZZepjVsie5WZK5V0mlNw6siEvjgWQmKo4BZKV/JVLRoF+XIQp5RcZFNA9ooUf86iMElPZSWjm4RR1eQUtr6tssyPCRnFOhnm4fIbb2cQ/5nJq6MTxIz8K9odqU5cRp6WBTkfIbYWBkXKrs2KObe/RwxWrQQMu8nHNxXAaSNvfuZOqCnaWraqZ9zKN04WFw1Gv6gftXy6UUUeeKB43x9TZiPXNwq5nDGJxCTFDiKT2zdQv2eOns1287cgCYOkLkEJRiQPFYbh9xJ8XaP18VaYsSH3Bjupql++xbgsHgNtfktepZAxyItoQ5jDcMCanJYCpZAOKtfAgSP6MSmLA+O5asJMcll7yYIY94J6YRRx9J5Fm/E56bq9RUWjr1Z15oxyOJlaEShqpdR9dJ6gGtxnJhLeL9azcF6meLERZA+V3+aHj1/5Swhtor0W1yUkkuXKm0/OCemsUi08zFmtwuOB/lo6d23y3jtN0hRexMZPUpuBpqXxwwFWKKVwA2kCxSs13OS+qF7M1dGDi2+2qNGCZ2mh4+4pf9+R/30Da78Fq0/xaVCqsgzfU9KWX4jORkuTc+LyqUGELNbZv0d3Gmf1igyrPlW1bItTJokMrmbxuo4mxSwymSHas=
+    file_glob: true
+    file: .*-$TRAVIS_TAG-$TARGET.*
+    on:
+      tags: true
+    skip_cleanup: true
+  - provider: cargo
+    token:
+      secure: GVGb8YoZ/lEGyI0k0cBAJTtk7ideKP5HMuNJQQHPAeKdVlS5H/TmM3cQWlkB77Le04KSuEmzNzLyPMiX/BSDQcGZfDW/VX6i2tjrgTr44gzJRW8Mt2rKKLMU8GF8xkdFwJ6r+lirTHiuOpDRlrNu1j8RTx5pWuIWm3yJDQiLgOmN/dntC83QoMgAG8XppAzgv1XSWos6ovkc+z3axH+aUdXpt1isr9MbDoZrIvwKMao1EfSLVGM3l/PLYF23+YcBg6++g/SMUGMxEfkqTb14mnbkNspo4jSInVmTOOEawUbqCiF/HEniqmNWunSMQNeDhyvCZve0Vgmb3TZgb7oydt6LTMdHGfKFMwqJg0ON/Feh51arkYE8OPzk4TUnIbrXRe47KqHEmsoo2QgPCv5lZqTUzFd3Ju/i2P1JTkCuURJ4bpQfzmBIANkGKPXvxyvQe5NTKT3vn/cEAJ8mqp+WwWIpY57Dnz5CFb/n4J5XGQXHq/RKvgG/5ZWavsr5wCiEWdsf3b/HTkIToNpRlFVafgXpMhxkTXZvAp9rvbiIMHmnNdE7fZf2Swb9GbLpYq/AiUA4uIqh0doYFbpteKQ5Pn5SyzOZ3Nb2su88ybYWzJ4f0l4LZyX/Ey3ByAW5B0eaCbWaqK+Aeay+Q6XzaUJOMKyh+fo7wyT2zuMO7VEmNGo=
+    on:
+      condition: $TARGET = x86_64-unknown-linux-musl
+      tags: true
+    skip_cleanup: true
 
 cache: cargo
 before_cache:
