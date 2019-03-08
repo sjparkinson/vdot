@@ -1,6 +1,6 @@
 # vdot
 
-[![Build Status](https://travis-ci.org/sjparkinson/vdot.svg?branch=master)](https://travis-ci.org/sjparkinson/vdot)
+[![Build Status](https://travis-ci.org/sjparkinson/vdot.svg?branch=master)](https://travis-ci.org/sjparkinson/vdot) [![Build status](https://ci.appveyor.com/api/projects/status/uah7hho8x7bitv2a/branch/master?svg=true)](https://ci.appveyor.com/project/sjparkinson/vdot/branch/master)
 
 Create your `.env` files using Vault.
 
