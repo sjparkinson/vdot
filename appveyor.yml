@@ -29,6 +29,7 @@ test_script:
   - cargo test --target %TARGET%
 
 before_deploy:
+  - sed -i "s/\"0.0.0\"/\"%APPVEYOR_REPO_TAG_NAME:~1%\"/" Cargo.toml
   - cargo rustc --target %TARGET% --release --bin vdot -- -C lto
   - ps: ci\before_deploy.ps1
 
