@@ -9,11 +9,27 @@ matrix:
   allow_failures:
     - rust: nightly
   fast_finish: true
-  
-script:
-  - cargo test
-  - cargo build --release
-  - cargo fmt -- --check
-  - target/release/vdot --help
 
 cache: cargo
+
+env:
+  - VAULT_ADDR=http://127.0.0.1:8200
+
+before_install:
+  - rustup component add rustfmt
+  - wget https://releases.hashicorp.com/vault/1.0.3/vault_1.0.3_linux_amd64.zip
+  - unzip vault_1.0.3_linux_amd64.zip
+
+before_script:
+  - echo "hunter2" > ~/.vault-token
+  - /sbin/start-stop-daemon --start --quiet --background --make-pidfile --pidfile "$PWD/vault.pid" --exec "$PWD/vault" -- server -dev -dev-root-token-id=hunter2
+  - sleep 2
+  - ./vault secrets enable -version=1 kv
+  - ./vault kv put kv/foo-bar ENV=production
+  - ./vault kv put kv/fizz-buzz LOG_LEVEL=info
+
+script:
+  - cargo fmt -- --check
+  - cargo test
+  - cargo run -- --help
+  - cargo run -- kv/foo-bar kv/fizz-buzz

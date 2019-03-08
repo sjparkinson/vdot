@@ -1,7 +1,16 @@
+use directories::UserDirs;
 use docopt::ArgvMap;
+use reqwest::header::AUTHORIZATION;
+use reqwest::Response;
+use serde_json::Value;
 use std::boxed::Box;
+use std::collections::HashMap;
 use std::error::Error;
+use std::fs::File;
+use std::io::prelude::*;
+use std::io::BufWriter;
 use std::{env, fs};
+use url::Url;
 
 #[derive(Debug)]
 pub struct Config {
@@ -12,15 +21,28 @@ pub struct Config {
 
 impl Config {
     pub fn new(args: &ArgvMap) -> Result<Config, Box<dyn Error>> {
-        // Read Vault token from filesystem, or error with prompt to login.
-        let home = env::var("HOME")?;
-        let token = fs::read_to_string(format!("{}/.vault-token", home))?;
+        let token_path = UserDirs::new().unwrap().home_dir().join(".vault-token");
+        let token = match fs::read_to_string(token_path) {
+            Ok(token) => String::from(token.trim()),
+            Err(ref err) if err.kind() == std::io::ErrorKind::NotFound => {
+                return Err(Box::from(
+                    "~/.vault-token must exist, try running `vault login`",
+                ));
+            }
+            Err(err) => return Err(Box::from(err)),
+        };
 
-        // Read Vault address from environment variable.
-        let address = env::var("VAULT_ADDR")?;
+        let address = match env::var("VAULT_ADDR") {
+            Ok(addr) => addr,
+            Err(_) => {
+                return Err(Box::from(
+                    "the $VAULT_ADDR environment variable must be set, e.g. `export VAULT_ADDR=https://vault.example.com`",
+                ))
+            }
+        };
 
         let paths = args.get_vec("<path>");
-        let paths = paths.into_iter().map(|s| s.to_string()).collect();
+        let paths = paths.into_iter().map(String::from).collect();
 
         Ok(Config {
             paths,
@@ -31,9 +53,59 @@ impl Config {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    println!("Hello world!");
+    let http = reqwest::Client::new();
 
-    println!("{:?}", config);
+    let url = Url::parse(config.address.as_str())?;
+    let url = url.join("v1/")?;
+
+    let mut vars: HashMap<String, String> = HashMap::new();
+
+    for path in config.paths {
+        let req = http
+            .get(url.join(&path)?)
+            .header(AUTHORIZATION, format!("Bearer {}", config.token));
+
+        let mut resp: Response = req.send()?;
+
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let status = status.as_str();
+
+            let resp: Value = resp.json()?;
+
+            if resp["errors"].is_array() && !resp["errors"].as_array().unwrap().is_empty() {
+                return Err(Box::from(format!(
+                    "vault responded with a {} status code for {}, saying {:?}",
+                    status,
+                    path,
+                    resp["errors"].as_array().unwrap()
+                )));
+            } else {
+                return Err(Box::from(format!(
+                    "vault responded with a {} status code for {}",
+                    status, path
+                )));
+            }
+        }
+
+        let resp: Value = resp.json()?;
+
+        let data = resp["data"].as_object().unwrap();
+
+        for (name, value) in data {
+            vars.insert(name.to_string(), value.to_string());
+        }
+    }
+
+    let mut buf = BufWriter::new(File::create(".env")?);
+
+    let count = vars.len();
+
+    for (name, value) in vars {
+        writeln!(&mut buf, "{}={}", name, value)?;
+    }
+
+    println!("Saved {} environment variables to .env", count);
 
     Ok(())
 }
