@@ -1,35 +1,56 @@
+# Based on the "trust" template v0.1.2
+# https://github.com/japaric/trust/tree/v0.1.2
+
+dist: trusty
 language: rust
-
-rust:
-  - stable
-  - beta
-  - nightly
-
-matrix:
-  allow_failures:
-    - rust: nightly
-  fast_finish: true
-
-cache: cargo
+services: docker
+sudo: required
 
 env:
-  - VAULT_ADDR=http://127.0.0.1:8200
+  global:
+    - CRATE_NAME=vdot
+
+matrix:
+  include:
+    # Linux
+    - env: TARGET=x86_64-unknown-linux-musl
+
+    # OSX
+    - env: TARGET=x86_64-apple-darwin
+      os: osx
 
 before_install:
-  - rustup component add rustfmt
-  - wget https://releases.hashicorp.com/vault/1.0.3/vault_1.0.3_linux_amd64.zip
-  - unzip vault_1.0.3_linux_amd64.zip
+  - set -e
+  - rustup self update
 
-before_script:
-  - echo "hunter2" > ~/.vault-token
-  - /sbin/start-stop-daemon --start --quiet --background --make-pidfile --pidfile "$PWD/vault.pid" --exec "$PWD/vault" -- server -dev -dev-root-token-id=hunter2
-  - sleep 2
-  - ./vault secrets enable -version=1 kv
-  - ./vault kv put kv/foo-bar ENV=production
-  - ./vault kv put kv/fizz-buzz LOG_LEVEL=info
+install:
+  - sh ci/install.sh
+  - source ~/.cargo/env || true
 
 script:
-  - cargo fmt -- --check
-  - cargo test
-  - cargo run -- --help
-  - cargo run -- kv/foo-bar kv/fizz-buzz
+  - cross build --target "$TARGET"
+  - cross test --target "$TARGET"
+
+after_script: set +e
+
+before_deploy:
+  - sh ci/before_deploy.sh
+
+deploy:
+  provider: releases
+  api_key:
+    secure: PRlzw2nxqDXJlI2MXmob7VGB0sE4w9Y9SnsPGC8Ot7zhAP/Dxvcdu8ZZepjVsie5WZK5V0mlNw6siEvjgWQmKo4BZKV/JVLRoF+XIQp5RcZFNA9ooUf86iMElPZSWjm4RR1eQUtr6tssyPCRnFOhnm4fIbb2cQ/5nJq6MTxIz8K9odqU5cRp6WBTkfIbYWBkXKrs2KObe/RwxWrQQMu8nHNxXAaSNvfuZOqCnaWraqZ9zKN04WFw1Gv6gftXy6UUUeeKB43x9TZiPXNwq5nDGJxCTFDiKT2zdQv2eOns1287cgCYOkLkEJRiQPFYbh9xJ8XaP18VaYsSH3Bjupql++xbgsHgNtfktepZAxyItoQ5jDcMCanJYCpZAOKtfAgSP6MSmLA+O5asJMcll7yYIY94J6YRRx9J5Fm/E56bq9RUWjr1Z15oxyOJlaEShqpdR9dJ6gGtxnJhLeL9azcF6meLERZA+V3+aHj1/5Swhtor0W1yUkkuXKm0/OCemsUi08zFmtwuOB/lo6d23y3jtN0hRexMZPUpuBpqXxwwFWKKVwA2kCxSs13OS+qF7M1dGDi2+2qNGCZ2mh4+4pf9+R/30Da78Fq0/xaVCqsgzfU9KWX4jORkuTc+LyqUGELNbZv0d3Gmf1igyrPlW1bItTJokMrmbxuo4mxSwymSHas=
+  file_glob: true
+  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
+  on:
+    condition: $TRAVIS_RUST_VERSION = stable
+    tags: true
+  skip_cleanup: true
+
+cache: cargo
+before_cache:
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo
+
+notifications:
+  email: false
