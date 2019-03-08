@@ -14,13 +14,13 @@ matrix:
   include:
     # Linux
     - env: TARGET=x86_64-unknown-linux-musl
+      os: linux
 
     # OSX
     - env: TARGET=x86_64-apple-darwin
       os: osx
 
 before_install:
-  - set -e
   - rustup self update
 
 install:
@@ -31,15 +31,12 @@ script:
   - cross build --target "$TARGET"
   - cross test --target "$TARGET"
 
-after_script: set +e
-
 before_deploy:
   - sh ci/before_deploy.sh
 
 deploy:
-  - provider: cargo
-    token:
-      secure: GVGb8YoZ/lEGyI0k0cBAJTtk7ideKP5HMuNJQQHPAeKdVlS5H/TmM3cQWlkB77Le04KSuEmzNzLyPMiX/BSDQcGZfDW/VX6i2tjrgTr44gzJRW8Mt2rKKLMU8GF8xkdFwJ6r+lirTHiuOpDRlrNu1j8RTx5pWuIWm3yJDQiLgOmN/dntC83QoMgAG8XppAzgv1XSWos6ovkc+z3axH+aUdXpt1isr9MbDoZrIvwKMao1EfSLVGM3l/PLYF23+YcBg6++g/SMUGMxEfkqTb14mnbkNspo4jSInVmTOOEawUbqCiF/HEniqmNWunSMQNeDhyvCZve0Vgmb3TZgb7oydt6LTMdHGfKFMwqJg0ON/Feh51arkYE8OPzk4TUnIbrXRe47KqHEmsoo2QgPCv5lZqTUzFd3Ju/i2P1JTkCuURJ4bpQfzmBIANkGKPXvxyvQe5NTKT3vn/cEAJ8mqp+WwWIpY57Dnz5CFb/n4J5XGQXHq/RKvgG/5ZWavsr5wCiEWdsf3b/HTkIToNpRlFVafgXpMhxkTXZvAp9rvbiIMHmnNdE7fZf2Swb9GbLpYq/AiUA4uIqh0doYFbpteKQ5Pn5SyzOZ3Nb2su88ybYWzJ4f0l4LZyX/Ey3ByAW5B0eaCbWaqK+Aeay+Q6XzaUJOMKyh+fo7wyT2zuMO7VEmNGo=
+  - provider: script
+    script: ./ci/publish.sh
     on:
       condition: $TARGET = x86_64-unknown-linux-musl
       tags: true

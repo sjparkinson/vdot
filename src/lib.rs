@@ -24,12 +24,11 @@ impl Config {
         let token_path = UserDirs::new().unwrap().home_dir().join(".vault-token");
         let token = match fs::read_to_string(token_path) {
             Ok(token) => String::from(token.trim()),
-            Err(ref err) if err.kind() == std::io::ErrorKind::NotFound => {
+            Err(_) => {
                 return Err(Box::from(
                     "~/.vault-token must exist, try running `vault login`",
                 ));
-            }
-            Err(err) => return Err(Box::from(err)),
+            },
         };
 
         let address = match env::var("VAULT_ADDR") {
@@ -71,21 +70,10 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
             let status = resp.status();
             let status = status.as_str();
 
-            let resp: Value = resp.json()?;
-
-            if resp["errors"].is_array() && !resp["errors"].as_array().unwrap().is_empty() {
-                return Err(Box::from(format!(
-                    "vault responded with a {} status code for {}, saying {:?}",
-                    status,
-                    path,
-                    resp["errors"].as_array().unwrap()
-                )));
-            } else {
-                return Err(Box::from(format!(
-                    "vault responded with a {} status code for {}",
-                    status, path
-                )));
-            }
+            return Err(Box::from(format!(
+                "vault responded with a {} status code for the '{}' path",
+                status, path
+            )));
         }
 
         let resp: Value = resp.json()?;
