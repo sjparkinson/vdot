@@ -22,6 +22,10 @@ curl -LSfs https://japaric.github.io/trust/install.sh | \
   sh -s -- --git sjparkinson/vdot --target x86_64-apple-darwin --to /usr/local/bin
 ```
 
+**Windows**
+
+You can [download `vdot.exe` from the latest release](https://github.com/sjparkinson/vdot/releases/latest). You will also need to install the [Visual C++ Redistributable for Visual Studio 2015](https://www.microsoft.com/en-us/download/details.aspx?id=48145).
+
 ## Usage
 
 ```
