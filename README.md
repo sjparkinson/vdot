@@ -6,6 +6,12 @@ Create your `.env` files using Vault.
 
 > 🚧 Currently only works with [Vault's key/value secrets engine version 1](https://www.vaultproject.io/docs/secrets/kv/kv-v1.html).
 
+## Installation
+
+```shell
+curl -LSfs https://japaric.github.io/trust/install.sh | sh -s -- --git sjparkinson/vdot
+```
+
 ## Usage
 
 ```
