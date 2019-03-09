@@ -7,6 +7,8 @@ matrix:
       
     - os: osx
       env: TARGET=x86_64-apple-darwin
+    - os: osx
+      env: TARGET=i686-apple-darwin
 
 env:
   global:
@@ -19,20 +21,22 @@ addons:
 
 before_install:
   - rustup target add "$TARGET"
+  - rustup component add rustfmt clippy
+
+install: cargo build --target "$TARGET"
 
 script:
+  - cargo fmt -- --check
+  - cargo clippy --all-targets --all-features -- --deny clippy::pedantic
   - cargo test --target "$TARGET"
 
-before_deploy:
-  - perl -i -pe "s/\"0.0.0\"/\"${TRAVIS_TAG#"v"}\"/" Cargo.toml
-  - cargo build --target "$TARGET" --release
-  - tar czf "target/vdot-$TRAVIS_TAG-$TARGET.tar.gz" "target/$TARGET/release/vdot"
+before_deploy: bash script/before_deploy.sh
 
 deploy:
   - provider: script
-    script: bash scripts/cargo-publish.sh
+    script: bash scripts/deploy.sh
     on:
-      condition: $TRAVIS_OS_NAME = linux
+      condition: $TARGET = x86_64-unknown-linux-musl
       tags: true
     skip_cleanup: true
 

@@ -1,5 +1,6 @@
 extern crate directories;
 extern crate docopt;
+extern crate failure;
 extern crate reqwest;
 extern crate serde;
 extern crate serde_json;
