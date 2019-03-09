@@ -8,6 +8,10 @@ matrix:
     - os: osx
       env: TARGET=x86_64-apple-darwin
 
+env:
+  global:
+    secure: NTP4ide9a2PRe8dLAEL89Dl+hlAL+WflvvS2Lf0LryU8EtLwI45EASu5TKLVSLvdq8Buvdwx7dKUHhLSECMTIDuqVyU20mY5lRJjPeca7yoV4S533QgohiIStjRvykAtRmolsdplYJNuzvOsSUHvacDodckqW7HHsNP3XWZegqNUKRaSPE/16BLWQzqwe+vz+v+u6Vn6tTjj2YFiKx3Bgi001InBaLfBOJcAZwvRCFw4moovnQB15qeRmirYCSteacKgJM57wDxNNryUB4vDrg++Jbqisj6DLcNDficj/XelKf45pkeczPBoMwrcLocopJ7+nl8uu8tDM1SyYfuR/i7fFj8YUUoPn5kuGMK5Z7dxmuBT44UkgSFeJddX4jMaQzlpbM/5x+N2cZOxqtrrUF+w+r6EOxWTcSIxEdY9N4gQjUK1vaKqTt3/B5zpkbn/u4aawEf1agbkXorA9BQJi2QePwugpbPg1rvfmWOBrfmNHQWwjQbGlb6UJqsCdyxH8V+DkfJ9tb4naFZLiCwqoUnh2TW875z0+eAU7MPCxk5SXYYCuga3GhPjTPDKQNZvopbXu2g9g4erTiKBye5ICx5a6dzBFUkZDbR9o/J4pIExkXYecS39iEq70tNlE5TbYj64glGBh7Vd884be4tWIEul9F0PYCLkGy/pqAl0hyw=
+
 addons:
   apt:
     packages:
@@ -21,15 +25,12 @@ script:
 
 before_deploy:
   - perl -i -pe "s/\"0.0.0\"/\"${TRAVIS_TAG#"v"}\"/" Cargo.toml
-  - git add Cargo.toml
-  - git commit --message "Publish $TRAVIS_TAG"
   - cargo build --target "$TARGET" --release
   - tar czf "target/vdot-$TRAVIS_TAG-$TARGET.tar.gz" "target/$TARGET/release/vdot"
 
 deploy:
-  - provider: cargo
-    token:
-      secure: GVGb8YoZ/lEGyI0k0cBAJTtk7ideKP5HMuNJQQHPAeKdVlS5H/TmM3cQWlkB77Le04KSuEmzNzLyPMiX/BSDQcGZfDW/VX6i2tjrgTr44gzJRW8Mt2rKKLMU8GF8xkdFwJ6r+lirTHiuOpDRlrNu1j8RTx5pWuIWm3yJDQiLgOmN/dntC83QoMgAG8XppAzgv1XSWos6ovkc+z3axH+aUdXpt1isr9MbDoZrIvwKMao1EfSLVGM3l/PLYF23+YcBg6++g/SMUGMxEfkqTb14mnbkNspo4jSInVmTOOEawUbqCiF/HEniqmNWunSMQNeDhyvCZve0Vgmb3TZgb7oydt6LTMdHGfKFMwqJg0ON/Feh51arkYE8OPzk4TUnIbrXRe47KqHEmsoo2QgPCv5lZqTUzFd3Ju/i2P1JTkCuURJ4bpQfzmBIANkGKPXvxyvQe5NTKT3vn/cEAJ8mqp+WwWIpY57Dnz5CFb/n4J5XGQXHq/RKvgG/5ZWavsr5wCiEWdsf3b/HTkIToNpRlFVafgXpMhxkTXZvAp9rvbiIMHmnNdE7fZf2Swb9GbLpYq/AiUA4uIqh0doYFbpteKQ5Pn5SyzOZ3Nb2su88ybYWzJ4f0l4LZyX/Ey3ByAW5B0eaCbWaqK+Aeay+Q6XzaUJOMKyh+fo7wyT2zuMO7VEmNGo=
+  - provider: script
+    script: bash scripts/cargo-publish.sh
     on:
       condition: $TRAVIS_OS_NAME = linux
       tags: true
@@ -39,7 +40,7 @@ deploy:
     api_key:
       secure: PRlzw2nxqDXJlI2MXmob7VGB0sE4w9Y9SnsPGC8Ot7zhAP/Dxvcdu8ZZepjVsie5WZK5V0mlNw6siEvjgWQmKo4BZKV/JVLRoF+XIQp5RcZFNA9ooUf86iMElPZSWjm4RR1eQUtr6tssyPCRnFOhnm4fIbb2cQ/5nJq6MTxIz8K9odqU5cRp6WBTkfIbYWBkXKrs2KObe/RwxWrQQMu8nHNxXAaSNvfuZOqCnaWraqZ9zKN04WFw1Gv6gftXy6UUUeeKB43x9TZiPXNwq5nDGJxCTFDiKT2zdQv2eOns1287cgCYOkLkEJRiQPFYbh9xJ8XaP18VaYsSH3Bjupql++xbgsHgNtfktepZAxyItoQ5jDcMCanJYCpZAOKtfAgSP6MSmLA+O5asJMcll7yYIY94J6YRRx9J5Fm/E56bq9RUWjr1Z15oxyOJlaEShqpdR9dJ6gGtxnJhLeL9azcF6meLERZA+V3+aHj1/5Swhtor0W1yUkkuXKm0/OCemsUi08zFmtwuOB/lo6d23y3jtN0hRexMZPUpuBpqXxwwFWKKVwA2kCxSs13OS+qF7M1dGDi2+2qNGCZ2mh4+4pf9+R/30Da78Fq0/xaVCqsgzfU9KWX4jORkuTc+LyqUGELNbZv0d3Gmf1igyrPlW1bItTJokMrmbxuo4mxSwymSHas=
     file_glob: true
-    file: target/vdot-$TRAVIS_TAG-$TARGET.*
+    file: target/vdot-$TRAVIS_TAG-$TARGET.tar.gz
     on:
       tags: true
     skip_cleanup: true
