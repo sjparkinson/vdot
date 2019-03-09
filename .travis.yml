@@ -29,9 +29,11 @@ install:
   - cross build --target "$TARGET"
 
 script:
-  - cross fmt -- --check
-  - cross clippy --all-targets --all-features -- --deny clippy::pedantic
+  - set -e
+  - cargo fmt -- --check
+  - cargo clippy -- --deny clippy::pedantic
   - cross test --target "$TARGET"
+  - set +e
 
 before_deploy: bash scripts/before_deploy.sh
 
