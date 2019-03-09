@@ -1,16 +1,19 @@
+#[macro_use]
+extern crate failure;
+
 use directories::UserDirs;
 use docopt::ArgvMap;
 use reqwest::header::AUTHORIZATION;
 use reqwest::Response;
 use serde_json::Value;
-use std::boxed::Box;
 use std::collections::HashMap;
-use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufWriter;
 use std::{env, fs};
 use url::Url;
+
+use failure::Error;
 
 #[derive(Debug)]
 pub struct Config {
@@ -20,23 +23,21 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &ArgvMap) -> Result<Config, Box<dyn Error>> {
+    pub fn new(args: &ArgvMap) -> Result<Config, Error> {
         let token_path = UserDirs::new().unwrap().home_dir().join(".vault-token");
         let token = match fs::read_to_string(token_path) {
             Ok(token) => String::from(token.trim()),
             Err(_) => {
-                return Err(Box::from(
-                    "~/.vault-token must exist, try running `vault login`",
+                return Err(format_err!(
+                    "~/.vault-token must exist, try running `vault login`"
                 ));
-            },
+            }
         };
 
         let address = match env::var("VAULT_ADDR") {
             Ok(addr) => addr,
             Err(_) => {
-                return Err(Box::from(
-                    "the $VAULT_ADDR environment variable must be set, e.g. `export VAULT_ADDR=https://vault.example.com`",
-                ))
+                return Err(format_err!("the $VAULT_ADDR environment variable must be set, e.g. `export VAULT_ADDR=https://vault.example.com`"))
             }
         };
 
@@ -51,7 +52,7 @@ impl Config {
     }
 }
 
-pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+pub fn run(config: Config) -> Result<(), Error> {
     let http = reqwest::Client::new();
 
     let url = Url::parse(config.address.as_str())?;
@@ -70,10 +71,11 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
             let status = resp.status();
             let status = status.as_str();
 
-            return Err(Box::from(format!(
+            return Err(format_err!(
                 "vault responded with a {} status code for the '{}' path",
-                status, path
-            )));
+                status,
+                path
+            ));
         }
 
         let resp: Value = resp.json()?;

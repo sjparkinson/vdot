@@ -21,6 +21,8 @@ before_install:
   - rustup target add "$TARGET"
 
 script:
+  - cargo fmt -- --check
+  - cargo clippy
   - cargo test --target "$TARGET"
 
 before_deploy:
