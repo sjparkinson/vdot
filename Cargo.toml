@@ -11,7 +11,6 @@ categories = ["command-line-utilities", "config"]
 
 [badges]
 travis-ci = { repository = "sjparkinson/vdot", branch = "master" }
-appveyor = { repository = "sjparkinson/vdot", branch = "master" }
 
 [dependencies]
 directories = "1.0.2"
