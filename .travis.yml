@@ -11,13 +11,7 @@ matrix:
 addons:
   apt:
     packages:
-      - libssl-dev
       - musl-tools
-      - pkg-config
-  homebrew:
-    packages:
-      - openssl@1.1
-
 
 before_install:
   - rustup target add "$TARGET"
