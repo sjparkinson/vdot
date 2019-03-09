@@ -4,32 +4,34 @@ matrix:
   include:
     - os: linux
       env: TARGET=x86_64-unknown-linux-musl
+    - os: linux
+      env: TARGET=i686-unknown-linux-musl
       
     - os: osx
       env: TARGET=x86_64-apple-darwin
     - os: osx
       env: TARGET=i686-apple-darwin
 
+services:
+  - docker
+
 env:
   global:
     secure: NTP4ide9a2PRe8dLAEL89Dl+hlAL+WflvvS2Lf0LryU8EtLwI45EASu5TKLVSLvdq8Buvdwx7dKUHhLSECMTIDuqVyU20mY5lRJjPeca7yoV4S533QgohiIStjRvykAtRmolsdplYJNuzvOsSUHvacDodckqW7HHsNP3XWZegqNUKRaSPE/16BLWQzqwe+vz+v+u6Vn6tTjj2YFiKx3Bgi001InBaLfBOJcAZwvRCFw4moovnQB15qeRmirYCSteacKgJM57wDxNNryUB4vDrg++Jbqisj6DLcNDficj/XelKf45pkeczPBoMwrcLocopJ7+nl8uu8tDM1SyYfuR/i7fFj8YUUoPn5kuGMK5Z7dxmuBT44UkgSFeJddX4jMaQzlpbM/5x+N2cZOxqtrrUF+w+r6EOxWTcSIxEdY9N4gQjUK1vaKqTt3/B5zpkbn/u4aawEf1agbkXorA9BQJi2QePwugpbPg1rvfmWOBrfmNHQWwjQbGlb6UJqsCdyxH8V+DkfJ9tb4naFZLiCwqoUnh2TW875z0+eAU7MPCxk5SXYYCuga3GhPjTPDKQNZvopbXu2g9g4erTiKBye5ICx5a6dzBFUkZDbR9o/J4pIExkXYecS39iEq70tNlE5TbYj64glGBh7Vd884be4tWIEul9F0PYCLkGy/pqAl0hyw=
-
-addons:
-  apt:
-    packages:
-      - musl-tools
-      - gcc-multilib
 
 before_install:
   - rustup target add "$TARGET"
   - rustup component add rustfmt clippy
 
-install: cargo build --target "$TARGET"
+install:
+  - source ~/.cargo/env || true
+  - cargo install cross --force
+  - cross build --target "$TARGET"
 
 script:
-  - cargo fmt -- --check
-  - cargo clippy --all-targets --all-features -- --deny clippy::pedantic
-  - cargo test --target "$TARGET"
+  - cross fmt -- --check
+  - cross clippy --all-targets --all-features -- --deny clippy::pedantic
+  - cross test --target "$TARGET"
 
 before_deploy: bash scripts/before_deploy.sh
 
