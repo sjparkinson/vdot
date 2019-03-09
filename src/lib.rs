@@ -55,26 +55,22 @@ impl Config {
 pub fn run(config: Config) -> Result<(), Error> {
     let http = reqwest::Client::new();
 
-    let url = Url::parse(config.address.as_str())?;
-    let url = url.join("v1/")?;
-
-    let mut vars: HashMap<String, String> = HashMap::new();
+    let mut vars = EnvironmentVariables::new();
 
     for path in config.paths {
+        let url = format_vault_url(config.address.as_str(), path.as_str())?;
+
         let req = http
-            .get(url.join(&path)?)
+            .get(url)
             .header(AUTHORIZATION, format!("Bearer {}", config.token));
 
         let mut resp: Response = req.send()?;
 
         if !resp.status().is_success() {
-            let status = resp.status();
-            let status = status.as_str();
-
             return Err(format_err!(
                 "vault responded with a {} status code for the '{}' path",
-                status,
-                path
+                resp.status().as_str(),
+                path.clone()
             ));
         }
 
@@ -87,15 +83,62 @@ pub fn run(config: Config) -> Result<(), Error> {
         }
     }
 
-    let mut buf = BufWriter::new(File::create(".env")?);
+    let file = File::create(".env")?;
+    let mut buf = BufWriter::new(file);
 
     let count = vars.len();
 
-    for (name, value) in vars {
-        writeln!(&mut buf, "{}={}", name, value)?;
-    }
+    save_environment_variables(vars, &mut buf)?;
 
     println!("Saved {} environment variables to .env", count);
 
     Ok(())
+}
+
+type EnvironmentVariables = HashMap<String, String>;
+
+fn save_environment_variables(variables: EnvironmentVariables, w: &mut Write) -> Result<(), Error> {
+    for (variable, value) in variables {
+        writeln!(w, "{}={}", variable, value)?;
+    }
+
+    Ok(())
+}
+
+fn format_vault_url(address: &str, path: &str) -> Result<Url, Error> {
+    let url = Url::parse(address)?;
+    let url = url.join("v1/")?;
+    let url = url.join(path)?;
+
+    Ok(url)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_save_environment_variables_formats_for_dotenv() {
+        let mut vars = EnvironmentVariables::new();
+        vars.insert(String::from("foo"), String::from("bar"));
+
+        let mut dotenv = Vec::new();
+
+        save_environment_variables(vars, &mut dotenv).unwrap();
+
+        assert_eq!(dotenv, b"foo=bar\n")
+    }
+
+    #[test]
+    fn test_format_vault_url_formats_to_v1_api() {
+        assert_eq!(
+            format_vault_url("https://vault.example.com", "secret/foo-bar").unwrap(),
+            Url::parse("https://vault.example.com/v1/secret/foo-bar").unwrap()
+        );
+    }
+
+    #[test]
+    fn test_format_vault_url_errors_on_bad_address() {
+        assert!(format_vault_url("foo-bar", "fizz-buzz").is_err());
+    }
 }
