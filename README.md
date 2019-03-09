@@ -8,18 +8,19 @@ Create your `.env` files using Vault.
 
 ## Installation
 
-**macOS**
+**macOS** and **Linux**
 
 ```shell
-curl -LSfs https://japaric.github.io/trust/install.sh | \
-  sh -s -- --git sjparkinson/vdot --target x86_64-apple-darwin --to /usr/local/bin
+curl https://raw.githubusercontent.com/sjparkinson/vdot/master/scripts/gh-install.sh \
+| sh -s -- --git sjparkinson/vdot
 ```
 
-**Linux**
+**Cargo**
+
+You can install `cargo` from https://www.rust-lang.org/tools/install.
 
 ```shell
-curl -LSfs https://japaric.github.io/trust/install.sh | \
-  sh -s -- --git sjparkinson/vdot --target x86_64-unknown-linux-musl --to /usr/local/bin
+cargo install vdot
 ```
 
 ## Usage

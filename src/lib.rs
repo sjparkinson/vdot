@@ -23,15 +23,15 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &ArgvMap) -> Result<Config, Error> {
+    pub fn new(args: &ArgvMap) -> Result<Self, Error> {
         let token_path = UserDirs::new().unwrap().home_dir().join(".vault-token");
-        let token = match fs::read_to_string(token_path) {
-            Ok(token) => String::from(token.trim()),
-            Err(_) => {
-                return Err(format_err!(
-                    "~/.vault-token must exist, try running `vault login`"
-                ));
-            }
+
+        let token = if let Ok(token) = fs::read_to_string(token_path) {
+            String::from(token.trim())
+        } else {
+            return Err(format_err!(
+                "~/.vault-token must exist, try running `vault login`"
+            ));
         };
 
         let address = match env::var("VAULT_ADDR") {
@@ -44,7 +44,7 @@ impl Config {
         let paths = args.get_vec("<path>");
         let paths = paths.into_iter().map(String::from).collect();
 
-        Ok(Config {
+        Ok(Self {
             paths,
             token,
             address,
