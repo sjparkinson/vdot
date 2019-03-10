@@ -16,13 +16,15 @@ use log::Level;
 use std::process;
 use vdot::Config;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 const USAGE: &str = "
 vdot
 
 Create your .env files using Vault.
 
 Usage:
-  vdot [-v] <key>...
+  vdot [-v] <path>...
   vdot (-h | --help)
   vdot --version
 
@@ -32,12 +34,11 @@ Options:
   -v, --verbose  Use verbose output.
 ";
 
-const VERSION: &str = env!("CARGO_PKG_VERSION");
-
 fn main() {
+    let version = Some(VERSION.to_string());
     let args = Docopt::new(USAGE)
-        .and_then(|d| d.version(Some(VERSION.to_string())).parse())
-        .unwrap_or_else(|e| e.exit());
+        .and_then(|docopt| docopt.version(version).parse())
+        .unwrap_or_else(|err| err.exit());
 
     if args.get_bool("--verbose") {
         loggerv::init_with_level(Level::Debug).unwrap();

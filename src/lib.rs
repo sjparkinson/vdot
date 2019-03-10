@@ -44,7 +44,7 @@ impl Config {
             }
         };
 
-        let paths = args.get_vec("<key>");
+        let paths = args.get_vec("<path>");
         let paths: Vec<String> = paths.into_iter().map(String::from).collect();
 
         Ok(Self {
@@ -117,7 +117,12 @@ where
     I: IntoIterator<Item = (String, String)>,
 {
     for (variable, value) in variables {
-        writeln!(w, "{}={}", variable, value)?;
+        if value.contains("\n") {
+            let value = value.replace("\n", "\\n");
+            writeln!(w, "{}=\"{}\"", variable, value)?;
+        } else {
+            writeln!(w, "{}={}", variable, value)?;
+        }
     }
 
     Ok(())
@@ -157,6 +162,25 @@ mod tests {
         assert_eq!(
             String::from_utf8(dotenv).unwrap(),
             String::from("fizz=buzz\nfoo=bar\n")
+        );
+    }
+
+    #[test]
+    fn test_save_environment_variables_quotes_and_escapes_multi_line_values() {
+        // Using BTreeMap to get a consistent order.
+        let mut vars: BTreeMap<String, String> = BTreeMap::new();
+        vars.insert(
+            String::from("EXAMPLE"),
+            String::from("this is a\nmulti-line\nvalue"),
+        );
+
+        let mut dotenv = Vec::new();
+
+        save_environment_variables(vars, &mut dotenv).unwrap();
+
+        assert_eq!(
+            String::from_utf8(dotenv).unwrap(),
+            String::from("EXAMPLE=\"this is a\\nmulti-line\\nvalue\"\n")
         );
     }
 
