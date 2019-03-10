@@ -83,10 +83,9 @@ pub fn run(config: Config) -> Result<(), Error> {
         let resp: Value = resp.json()?;
 
         let data = resp["data"].as_object().unwrap();
-        let data = data.into_iter()
-            .map(|(name, value)| {
-                (name.to_string(), String::from(value.as_str().unwrap()))
-            });
+        let data = data
+            .into_iter()
+            .map(|(name, value)| (name.to_string(), String::from(value.as_str().unwrap())));
 
         for (name, value) in data {
             vars.insert(name, value);
@@ -113,10 +112,10 @@ pub fn run(config: Config) -> Result<(), Error> {
     Ok(())
 }
 
-fn save_environment_variables<I>(
-    variables: I,
-    w: &mut Write,
-) -> Result<(), Error> where I:IntoIterator<Item = (String, String)> {
+fn save_environment_variables<I>(variables: I, w: &mut Write) -> Result<(), Error>
+where
+    I: IntoIterator<Item = (String, String)>,
+{
     for (variable, value) in variables {
         writeln!(w, "{}={}", variable, value)?;
     }
@@ -128,7 +127,9 @@ fn format_vault_url(address: &str, path: &str) -> Result<Url, Error> {
     let url = Url::parse(address)?;
 
     if (url.scheme() != "http" && url.scheme() != "https") || !url.has_authority() {
-        return Err(format_err!("only http and https schemes are allowed in VAULT_ADDR"));
+        return Err(format_err!(
+            "only http and https schemes are allowed in VAULT_ADDR"
+        ));
     }
 
     let url = url.join("v1/")?;
@@ -153,7 +154,10 @@ mod tests {
 
         save_environment_variables(vars, &mut dotenv).unwrap();
 
-        assert_eq!(String::from_utf8(dotenv).unwrap(), String::from("fizz=buzz\nfoo=bar\n"));
+        assert_eq!(
+            String::from_utf8(dotenv).unwrap(),
+            String::from("fizz=buzz\nfoo=bar\n")
+        );
     }
 
     #[test]
@@ -214,10 +218,6 @@ mod tests {
         assert!(format_vault_url("host-with-no-scheme", "secret/fizz-buzz").is_err());
         assert!(format_vault_url("https://", "secret/fizz-buzz").is_err());
         assert!(format_vault_url("http//localhost", "secret/fizz-buzz").is_err());
-
-        // Accepted by `Url::parse` but not valid.
-        // See https://stackoverflow.com/questions/5568569/url-containing-the-scheme-but-not-the-authority-hostname.
-        assert!(format_vault_url("http:localhost", "secret/fizz-buzz").is_err());
 
         // Only accept http or https.
         assert!(format_vault_url("data:text/plain", "secret/fizz-buzz").is_err());
