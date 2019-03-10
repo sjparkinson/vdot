@@ -11,10 +11,8 @@ extern crate url;
 extern crate vdot;
 
 use docopt::Docopt;
-use failure::Error;
 use log::Level;
 use std::process;
-use vdot::Config;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -46,17 +44,8 @@ fn main() {
         loggerv::init_with_level(Level::Info).unwrap();
     }
 
-    let config = match Config::new(&args) {
-        Ok(config) => config,
-        Err(err) => return error(&err),
-    };
-
-    if let Err(err) = vdot::run(config) {
-        error(&err);
+    if let Err(err) = vdot::run(&args) {
+        error!("{}", err);
+        process::exit(1);
     }
-}
-
-fn error(err: &Error) {
-    error!("{}", err);
-    process::exit(1);
 }
