@@ -4,8 +4,6 @@
 
 Create your `.env` files using Vault.
 
-> 🚧 Currently only works with [version 1 of the vault key/value secrets engine](https://www.vaultproject.io/docs/secrets/kv/kv-v1.html).
-
 ## Installation
 
 **macOS** and **Linux**
@@ -40,12 +38,26 @@ Options:
   --version     Show the version of this program.
 ```
 
-```shell
+**KV Secrets Engine Version 2**
+
+```bash
 $ vault login
-$ vault write secret/foo-bar ENV=production
-$ vault write secret/fizz-buzz LOG_LEVEL=info
-$ vdot secret/foo-bar secret/fizz-buzz
-Saved 2 environment variables to .env
+$ vault kv put secret/foo-bar ENV=production LOG_LEVEL=info
+$ vault kv put secret/fizz-buzz LOG_LEVEL=debug
+$ vdot secret/data/foo-bar secret/data/fizz-buzz
+vdot: saved 2 environment variables to .env
+$ cat .env
+ENV=production
+LOG_LEVEL=debug
+```
+
+**KV Secrets Engine Version 1**
+
+```bash
+$ vault login
+$ vault kv put secret/foo-bar ENV=production LOG_LEVEL=info
+$ vdot secret/foo-bar
+vdot: saved 2 environment variables to .env
 $ cat .env
 ENV=production
 LOG_LEVEL=info
