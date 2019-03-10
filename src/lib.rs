@@ -81,14 +81,17 @@ pub fn run(config: Config) -> Result<(), Error> {
         }
 
         let resp: Value = resp.json()?;
+        let data = &resp["data"];
 
-        let data = resp["data"].as_object().unwrap();
-        let data = data
-            .into_iter()
-            .map(|(name, value)| (name.to_string(), String::from(value.as_str().unwrap())));
-
-        for (name, value) in data {
-            vars.insert(name, value);
+        // Handle the diffrent data formats for version 1 and 2 of the key-value secrets engine.
+        if data["metadata"]["version"].is_number() {
+            for (name, value) in data["data"].as_object().unwrap() {
+                vars.insert(name.to_string(), String::from(value.as_str().unwrap()));
+            }
+        } else {
+            for (name, value) in data.as_object().unwrap() {
+                vars.insert(name.to_string(), String::from(value.as_str().unwrap()));
+            }
         }
     }
 
@@ -117,7 +120,7 @@ where
     I: IntoIterator<Item = (String, String)>,
 {
     for (variable, value) in variables {
-        if value.contains("\n") {
+        if value.contains('\n') {
             let value = value.replace("\n", "\\n");
             writeln!(w, "{}=\"{}\"", variable, value)?;
         } else {
