@@ -8,8 +8,10 @@ Create your `.env` files using Vault.
 
 **macOS** and **Linux**
 
+This script will download the latest release from GitHub and install `vdot` under `/usr/local/bin`.
+
 ```shell
-curl https://raw.githubusercontent.com/sjparkinson/vdot/master/scripts/gh-install.sh \
+curl https://gist.githubusercontent.com/sjparkinson/327dc78c60ab81a06c946630b4288910/raw/crate-gh-install.sh \
 | sh -s -- --git sjparkinson/vdot
 ```
 
@@ -41,7 +43,6 @@ Options:
 **KV Secrets Engine Version 2**
 
 ```bash
-$ vault login
 $ vault kv put secret/foo-bar ENV=production LOG_LEVEL=info
 $ vault kv put secret/fizz-buzz LOG_LEVEL=debug
 $ vdot secret/data/foo-bar secret/data/fizz-buzz
@@ -54,11 +55,9 @@ LOG_LEVEL=debug
 **KV Secrets Engine Version 1**
 
 ```bash
-$ vault login
-$ vault kv put secret/foo-bar ENV=production LOG_LEVEL=info
+$ vault kv put secret/foo-bar LOG_LEVEL=info
 $ vdot secret/foo-bar
-vdot: saved 2 environment variables to .env
+vdot: saved 1 environment variable to .env
 $ cat .env
-ENV=production
 LOG_LEVEL=info
 ```
