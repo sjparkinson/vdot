@@ -19,14 +19,14 @@ use url::Url;
 use failure::Error;
 
 #[derive(Debug)]
-pub struct Config {
-    pub paths: Vec<String>,
-    pub token: String,
-    pub address: String,
+struct Config {
+    paths: Vec<String>,
+    token: String,
+    address: String,
 }
 
 impl Config {
-    pub fn new(args: &ArgvMap) -> Result<Self, Error> {
+    fn new(args: &ArgvMap) -> Result<Self, Error> {
         let token_path = UserDirs::new().unwrap().home_dir().join(".vault-token");
 
         let token = if let Ok(token) = fs::read_to_string(token_path) {
@@ -55,7 +55,13 @@ impl Config {
     }
 }
 
-pub fn run(config: Config) -> Result<(), Error> {
+pub fn run(args: &ArgvMap) -> Result<(), Error> {
+    // Parse the command line options and vault configuration.
+    let config = match Config::new(&args) {
+        Ok(config) => config,
+        Err(err) => return Err(err),
+    };
+
     // Create a new http client to make use of connec
     let http = reqwest::Client::new();
 
