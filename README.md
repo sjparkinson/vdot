@@ -31,13 +31,14 @@ vdot
 Create your .env files using Vault.
 
 Usage:
-  vdot <path>...
+  vdot [-v] <path>...
   vdot (-h | --help)
   vdot --version
 
 Options:
-  -h --help     Show this message.
-  --version     Show the version of this program.
+  -h --help      Show this message.
+  --version      Show the version of this program.
+  -v, --verbose  Use verbose output.
 ```
 
 **KV Secrets Engine Version 2**
