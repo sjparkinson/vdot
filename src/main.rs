@@ -1,16 +1,17 @@
-use log::error;
+use log::{error, Level};
 use std::process;
 use structopt::StructOpt;
-use vdot::Args;
+use vdot::{logger, Args};
 
 fn main() {
-    vdot::log::init(log::Level::Info);
+    // Setup logging to stdout and stderr.
+    logger::init(Level::Info);
 
+    // Parse the command line arguments into the Args struct, using structopt.
     let args = Args::from_args();
 
-    println!("{:#?}", args);
-
-    if let Err(err) = vdot::run() {
+    // Run vdot!
+    if let Err(err) = vdot::run(args) {
         error!("{}", err);
         process::exit(1);
     }
