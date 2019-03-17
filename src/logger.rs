@@ -3,6 +3,27 @@ use fern::Dispatch as Logger;
 use log::Level;
 use std::io;
 
+/// Configure logging.
+///
+/// Uses the [`fern`] crate to configure a logger that prints to stdout and stderr, with colourised output.
+///
+/// *Note*: Logs of [`Level::Warn`] and above are written to stderr.
+///
+/// [`fern`]: https://crates.io/crates/fern
+/// [`Level::Warn`]: ../../log/enum.Level.html#variant.Warn
+///
+/// # Examples
+///
+/// ```
+/// use log::Level;
+/// use vdot::logger;
+///
+/// logger::init(Level::Info);
+/// ```
+///
+/// # Panics
+///
+/// This function will panic in the unlikely case that is is unable to build a logger instance.
 pub fn init(level: Level) {
     let colors = ColoredLevelConfig::default();
     let result = Logger::new()
