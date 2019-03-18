@@ -4,15 +4,19 @@ use structopt::StructOpt;
 use vdot::{logger, Args};
 
 fn main() {
-    let args: Args = Args::from_args();
+    // Parse the command line inputs into an instance of `Args`.
+    let args = Args::from_args();
+
+    // Convert the u8 into a `Level`.
+    let log_level = match args.verbose {
+        0 => Level::Info,
+        _ => Level::Debug,
+    };
 
     // Setup logging to stdout and stderr.
-    match args.verbose {
-        0 => logger::init(Level::Info),
-        1 => logger::init(Level::Debug),
-        _ => logger::init(Level::Trace),
-    }
+    logger::init(log_level);
 
+    // Run vdot!
     if let Err(err) = vdot::run(args) {
         error!("{}", err);
         process::exit(1);
