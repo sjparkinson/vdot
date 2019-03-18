@@ -15,10 +15,12 @@ use std::io;
 /// # Examples
 ///
 /// ```
-/// use log::Level;
+/// use log::{Level, info};
 /// use vdot::logger;
 ///
 /// logger::init(Level::Info);
+///
+/// info!("Hello world!");
 /// ```
 ///
 /// # Panics
@@ -44,7 +46,13 @@ pub fn init(level: Level) {
         .chain(
             // Handle info, debug, and trace logs.
             Logger::new()
-                .format(|out, message, _| out.finish(format_args!("{}", message,)))
+                .format(move |out, message, record| {
+                    out.finish(format_args!(
+                        "{}: {}",
+                        colors.color(record.level()).to_string().to_lowercase(),
+                        message
+                    ))
+                })
                 .level_for("vdot", level.to_level_filter())
                 .filter(|metadata| metadata.level() >= Level::Info)
                 .chain(io::stdout()),

@@ -4,13 +4,31 @@ use structopt::StructOpt;
 use vdot::{logger, Args};
 
 fn main() {
+    let args: Args = Args::from_args();
+
     // Setup logging to stdout and stderr.
-    logger::init(Level::Info);
+    match args.verbose {
+        0 => logger::init(Level::Info),
+        1 => logger::init(Level::Debug),
+        _ => logger::init(Level::Trace),
+    }
 
-    // Parse the command line arguments into the Args struct, using structopt.
-    let args = Args::from_args();
+    // We have a valid Args instance, we can run.
+    if args.is_valid() {
+        return run(args);
+    }
 
-    // Run vdot!
+    // We don't have the Vault configuration from the command line,
+    // try and get it from the environment.
+    let args = Args::from_env(args).unwrap_or_else(|err| {
+        error!("{}", err);
+        process::exit(exitcode::USAGE);
+    });
+
+    run(args)
+}
+
+fn run(args: Args) {
     if let Err(err) = vdot::run(args) {
         error!("{}", err);
         process::exit(1);
