@@ -1,6 +1,6 @@
 use fern::colors::ColoredLevelConfig;
 use fern::Dispatch as Logger;
-use log::Level;
+use log::{debug, Level};
 use std::io;
 
 /// Configure logging.
@@ -15,12 +15,13 @@ use std::io;
 /// # Examples
 ///
 /// ```
-/// use log::{Level, info};
+/// use log::{Level, info, warn};
 /// use vdot::logger;
 ///
 /// logger::init(Level::Info);
 ///
 /// info!("Hello world!");
+/// warn!("This is a warn message.");
 /// ```
 ///
 /// # Panics
@@ -28,7 +29,9 @@ use std::io;
 /// This function will panic in the unlikely case that is is unable to build a logger instance.
 pub fn init(level: Level) {
     let colors = ColoredLevelConfig::default();
-    let result = Logger::new()
+    let level = level.to_level_filter();
+
+    Logger::new()
         .chain(
             // Handle warn and error logs.
             Logger::new()
@@ -39,8 +42,8 @@ pub fn init(level: Level) {
                         message,
                     ))
                 })
-                .level_for("vdot", level.to_level_filter())
-                .filter(|metadata| metadata.level() <= Level::Warn)
+                .level(level)
+                .filter(|metadata| metadata.level() <= Level::Warn && metadata.target() == "vdot")
                 .chain(io::stderr()),
         )
         .chain(
@@ -53,15 +56,12 @@ pub fn init(level: Level) {
                         message
                     ))
                 })
-                .level_for("vdot", level.to_level_filter())
-                .filter(|metadata| metadata.level() >= Level::Info)
+                .level(level)
+                .filter(|metadata| metadata.level() >= Level::Info && metadata.target() == "vdot")
                 .chain(io::stdout()),
         )
-        .apply();
+        .apply()
+        .expect("failed to initialise logging");
 
-    // Avoid an unwrap, if logging failed to setup something is really wrong.
-    match result {
-        Ok(()) => (),
-        Err(err) => panic!(err),
-    }
+    debug!("initialised to log {} messages", level);
 }
