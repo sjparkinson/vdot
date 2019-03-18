@@ -14,7 +14,7 @@ pub mod logger;
 
 #[derive(Fail, Debug)]
 #[fail(
-    display = "vault responded with a {} status code for the '{}' path",
+    display = "Vault responded with {} for the '{}' path",
     status, path
 )]
 pub struct VaultResponseError {
@@ -23,27 +23,29 @@ pub struct VaultResponseError {
 }
 
 #[derive(StructOpt, Debug)]
-#[structopt(author = "", about = "")]
+#[structopt(author = "", about = "", usage = "vdot [FLAGS] <OPTIONS> <PATH>...")]
 pub struct Args {
-    /// Vault paths.
+    /// Your Vault paths.
     ///
-    /// When using v1 of the Vault key value secrets engine your paths will look something like
-    /// `secret/foo-bar`. If you are using v2 of the key value secrets engine, modify the path to
-    /// look like `secret/data/foo-bar`.
+    /// Something like `secret/foo-bar` for v1, and `secret/data/foo-bar` for v2 of the Vault key-value secrets engine.
+    /// 
+    /// See https://www.vaultproject.io/docs/secrets/kv/index.html for more information.
     #[structopt(name = "PATH", raw(required = "true"))]
     pub paths: Vec<String>,
 
     /// Your Vault token.
+    /// 
+    /// This can be provided by setting the VAULT_TOKEN environment variable.
     #[structopt(long = "vault-token", env = "VAULT_TOKEN", hide_env_values = true)]
     pub vault_token: String,
 
     /// The URL to access Vault.
+    ///     
+    /// This can be provided by setting the VAULT_ADDR environment variable.
     #[structopt(long = "vault-address", env = "VAULT_ADDR", hide_env_values = true)]
     pub vault_address: Url,
 
     /// Verbose mode.
-    ///
-    /// You can use `-v` to see debug messages. Use `-vv` to see trace messages.
     #[structopt(short = "v", long = "verbose", parse(from_occurrences))]
     pub verbose: u8,
 }

@@ -10,6 +10,8 @@ Create your `.env` files using Vault.
 
 This script will download the latest release from GitHub and install `vdot` under `/usr/local/bin`.
 
+You can also download the executable manually from https://github.com/sjparkinson/vdot/releases/latest.
+
 ```shell
 curl https://gist.githubusercontent.com/sjparkinson/327dc78c60ab81a06c946630b4288910/raw/crate-gh-install.sh \
 | sh -s -- --git sjparkinson/vdot
@@ -17,7 +19,7 @@ curl https://gist.githubusercontent.com/sjparkinson/327dc78c60ab81a06c946630b428
 
 **Cargo**
 
-You can install `cargo` from https://www.rust-lang.org/tools/install.
+> You can install `cargo` from https://www.rust-lang.org/tools/install.
 
 ```shell
 cargo install vdot
@@ -28,20 +30,23 @@ cargo install vdot
 ```
 vdot
 
-Create your .env files using Vault.
+USAGE:
+    vdot [FLAGS] <OPTIONS> <PATH>...
 
-Usage:
-  vdot [-v] <path>...
-  vdot (-h | --help)
-  vdot --version
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+    -v, --verbose    Verbose mode
 
-Options:
-  -h --help      Show this message.
-  --version      Show the version of this program.
-  -v, --verbose  Use verbose output.
+OPTIONS:
+        --vault-address <vault_address>    The URL to access Vault. [env: VAULT_ADDR]
+        --vault-token <vault_token>        Your Vault token. [env: VAULT_TOKEN]
+
+ARGS:
+    <PATH>...    Vault paths
 ```
 
-**KV Secrets Engine Version 2**
+**Key-Value Version 2**
 
 ```bash
 $ vault kv put secret/foo-bar ENV=production LOG_LEVEL=info
@@ -53,7 +58,7 @@ ENV=production
 LOG_LEVEL=debug
 ```
 
-**KV Secrets Engine Version 1**
+**Key-Value Version 1**
 
 ```bash
 $ vault kv put secret/foo-bar LOG_LEVEL=info
@@ -62,3 +67,11 @@ vdot: saved 1 environment variable to .env
 $ cat .env
 LOG_LEVEL=info
 ```
+
+## Environment Variables
+
+Instead of passing in the `--vault-*` options, you can define them as environmnent variables.
+
+The [Vault CLI defines that](https://www.vaultproject.io/docs/commands/index.html#environment-variables) `VAULT_TOKEN` and `VAULT_ADDR` can be used.
+
+These two environment variables are also supported by vdot.
