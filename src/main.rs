@@ -10,7 +10,8 @@ fn main() {
     // Convert the u8 into a `Level`.
     let log_level = match args.verbose {
         0 => Level::Info,
-        _ => Level::Debug,
+        1 => Level::Debug,
+        _ => Level::Trace,
     };
 
     // Setup logging to stdout and stderr.
