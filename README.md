@@ -51,7 +51,7 @@ ARGS:
 ```bash
 $ vault kv put secret/foo-bar ENV=production LOG_LEVEL=info
 $ vault kv put secret/fizz-buzz LOG_LEVEL=debug
-$ vdot --vault-address "$VAULT_ADDR" --vault-token "$(cat ~/.vault-token)" secret/data/foo-bar secret/data/fizz-buzz
+$ vdot --vault-token "$(cat ~/.vault-token)" secret/data/foo-bar secret/data/fizz-buzz
 info: saved 2 environment variables to .env
 $ cat .env
 ENV=production
@@ -62,7 +62,7 @@ LOG_LEVEL=debug
 
 ```bash
 $ vault kv put secret/foo-bar LOG_LEVEL=info
-$ vdot --vault-address "$VAULT_ADDR" --vault-token "$(cat ~/.vault-token)" secret/foo-bar
+$ vdot --vault-token "$(cat ~/.vault-token)" secret/foo-bar
 info: saved 1 environment variable to .env
 $ cat .env
 LOG_LEVEL=info
@@ -72,6 +72,4 @@ LOG_LEVEL=info
 
 Instead of passing in the `--vault-*` options, you can define them as environmnent variables.
 
-The [Vault CLI defines that](https://www.vaultproject.io/docs/commands/index.html#environment-variables) `VAULT_TOKEN` and `VAULT_ADDR` can be used.
-
-These two environment variables are also supported by vdot.
+The [Vault CLI defines that](https://www.vaultproject.io/docs/commands/index.html#environment-variables) `VAULT_TOKEN` and `VAULT_ADDR` can be used. These two environment variables are also supported by vdot.
