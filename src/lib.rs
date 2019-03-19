@@ -13,10 +13,7 @@ use url::Url;
 pub mod logger;
 
 #[derive(Fail, Debug)]
-#[fail(
-    display = "Vault responded with {} for the '{}' path",
-    status, path
-)]
+#[fail(display = "Vault responded with {} for the '{}' path", status, path)]
 pub struct VaultResponseError {
     status: reqwest::StatusCode,
     path: String,
@@ -28,13 +25,13 @@ pub struct Args {
     /// Your Vault paths.
     ///
     /// Something like `secret/foo-bar` for v1, and `secret/data/foo-bar` for v2 of the Vault key-value secrets engine.
-    /// 
+    ///
     /// See https://www.vaultproject.io/docs/secrets/kv/index.html for more information.
     #[structopt(name = "PATH", raw(required = "true"))]
     pub paths: Vec<String>,
 
     /// Your Vault token.
-    /// 
+    ///
     /// This can be provided by setting the VAULT_TOKEN environment variable.
     #[structopt(long = "vault-token", env = "VAULT_TOKEN", hide_env_values = true)]
     pub vault_token: String,
