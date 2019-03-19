@@ -10,12 +10,12 @@ Create your `.env` files using Vault.
 
 This script will download the latest release from GitHub and install `vdot` under `/usr/local/bin`.
 
-You can also download the executable manually from https://github.com/sjparkinson/vdot/releases/latest.
-
 ```shell
 curl https://gist.githubusercontent.com/sjparkinson/327dc78c60ab81a06c946630b4288910/raw/crate-gh-install.sh \
 | sh -s -- --git sjparkinson/vdot
 ```
+
+You can also download the executable manually from https://github.com/sjparkinson/vdot/releases/latest.
 
 **Cargo**
 
