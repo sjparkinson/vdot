@@ -52,7 +52,7 @@ ARGS:
 $ vault kv put secret/foo-bar ENV=production LOG_LEVEL=info
 $ vault kv put secret/fizz-buzz LOG_LEVEL=debug
 $ vdot --vault-address "$VAULT_ADDR" --vault-token "$(cat ~/.vault-token)" secret/data/foo-bar secret/data/fizz-buzz
-vdot: saved 2 environment variables to .env
+info: saved 2 environment variables to .env
 $ cat .env
 ENV=production
 LOG_LEVEL=debug
@@ -63,7 +63,7 @@ LOG_LEVEL=debug
 ```bash
 $ vault kv put secret/foo-bar LOG_LEVEL=info
 $ vdot --vault-address "$VAULT_ADDR" --vault-token "$(cat ~/.vault-token)" secret/foo-bar
-vdot: saved 1 environment variable to .env
+info: saved 1 environment variable to .env
 $ cat .env
 LOG_LEVEL=info
 ```
