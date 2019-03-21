@@ -124,7 +124,10 @@ pub fn run(args: Args) -> Result<(), Error> {
             let value = match stringify_json_value(&value) {
                 Some(value) => value,
                 None => {
-                    warn!("the value for {} in {} is an array or object and cannot be saved", name, path);
+                    warn!(
+                        "the value for {} in {} is an array or object and cannot be saved",
+                        name, path
+                    );
                     continue;
                 }
             };
