@@ -183,3 +183,51 @@ fn stringify_json_value(value: &serde_json::Value) -> Option<String> {
 
     None
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::*;
+
+    #[test]
+    fn stringify_json_value_converts_strings() {
+        let json = json!("hello world");
+        assert_eq!(stringify_json_value(&json), Some("hello world".to_string()));
+    }
+
+    #[test]
+    fn stringify_json_value_converts_numbers() {
+        let json = json!(42);
+        assert_eq!(stringify_json_value(&json), Some("42".to_string()));
+
+        let json = json!(-42);
+        assert_eq!(stringify_json_value(&json), Some("-42".to_string()));
+
+        let json = json!(4.2);
+        assert_eq!(stringify_json_value(&json), Some("4.2".to_string()));
+    }
+
+    #[test]
+    fn stringify_json_value_converts_null() {
+        let json = json!(null);
+        assert_eq!(stringify_json_value(&json["key"]), Some("".to_string()));
+    }
+
+    #[test]
+    fn stringify_json_value_converts_booleans() {
+        let json = json!(true);
+        assert_eq!(stringify_json_value(&json), Some("true".to_string()));
+
+        let json = json!(false);
+        assert_eq!(stringify_json_value(&json), Some("false".to_string()));
+    }
+
+    #[test]
+    fn stringify_json_value_does_not_convert_arrays_and_objects() {
+        let json = json!({});
+        assert_eq!(stringify_json_value(&json), None);
+
+        let json = json!([]);
+        assert_eq!(stringify_json_value(&json), None);
+    }
+}
