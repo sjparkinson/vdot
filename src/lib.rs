@@ -7,6 +7,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufWriter;
 use std::path::Path;
+use std::process::Command;
 use structopt::StructOpt;
 use url::Url;
 
@@ -33,9 +34,9 @@ pub struct Args {
     pub paths: Vec<String>,
 
     /// Command to spawn
-    /// 
+    ///
     /// This option will spawn the given command with the environment variables downloaded from Vault.
-    /// 
+    ///
     /// e.g. `vdot -c 'npm start' secret/foo secret/bar`
     #[structopt(short = "c", long = "command")]
     pub command: Option<String>,
@@ -72,6 +73,7 @@ pub struct Args {
 ///     paths: vec![],
 ///     vault_token: "hunter2".to_string(),
 ///     vault_address: url::Url::parse("http://127.0.0.1:8200").unwrap(),
+///     command: None,
 ///     verbose: 0
 /// };
 ///
@@ -144,6 +146,28 @@ pub fn run(args: Args) -> Result<(), Error> {
         }
     }
 
+    if let Some(command) = args.command {
+        start_process(command, vars)
+    } else {
+        save_dotenv(vars)
+    }
+}
+
+fn start_process(process: String, vars: HashMap<String, String>) -> Result<(), Error> {
+    let mut command = process.split_whitespace();
+
+    info!("running `{}`", process);
+
+    // The first part is the process to start.
+    Command::new(command.next().unwrap())
+        .args(command)
+        .envs(vars)
+        .status()?;
+
+    Ok(())
+}
+
+fn save_dotenv(vars: HashMap<String, String>) -> Result<(), Error> {
     if Path::new(".env").is_file() {
         warn!("overwriting existing .env file");
     }
