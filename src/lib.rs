@@ -23,7 +23,7 @@ pub struct VaultResponseError {
 #[structopt(author = "", about = "", usage = "vdot [FLAGS] <OPTIONS> <PATH>...")]
 pub struct Args {
     /// Path to the Vault secrets
-    /// 
+    ///
     /// If duplicate keys are found when providing more than one path the value from the first path will be saved.
     ///
     /// Use something like `secret/foo-bar` for v1 of the Vault key-value secrets engine, and `secret/data/foo-bar` for v2.
@@ -35,7 +35,7 @@ pub struct Args {
     /// Vault token used to authenticate requests
     ///
     /// This can also be provided by setting the VAULT_TOKEN environment variable.
-    /// 
+    ///
     /// See https://www.vaultproject.io/docs/concepts/auth.html#tokens for more information.
     #[structopt(long = "vault-token", env = "VAULT_TOKEN", hide_env_values = true)]
     pub vault_token: String,
@@ -110,11 +110,29 @@ pub fn run(args: Args) -> Result<(), Error> {
         // Handle the diffrent data formats for version 1 and 2 of the key-value secrets engine.
         if data["metadata"]["version"].is_number() {
             for (name, value) in data["data"].as_object().unwrap() {
-                vars.insert(name.to_string(), value.as_str().unwrap().to_string());
+                let name = name.to_string();
+                let value = match value.as_str() {
+                    Some(s) => s.to_string(),
+                    None => {
+                        warn!("the value for {} is not a string and will be skipped", name);
+                        continue;
+                    }
+                };
+
+                vars.insert(name, value);
             }
         } else {
             for (name, value) in data.as_object().unwrap() {
-                vars.insert(name.to_string(), value.as_str().unwrap().to_string());
+                let name = name.to_string();
+                let value = match value.as_str() {
+                    Some(s) => s.to_string(),
+                    None => {
+                        warn!("the value for {} is not a string and will be skipped", name);
+                        continue;
+                    }
+                };
+
+                vars.insert(name, value);
             }
         }
     }
