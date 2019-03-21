@@ -108,32 +108,23 @@ pub fn run(args: Args) -> Result<(), Error> {
         let data = &resp["data"];
 
         // Handle the diffrent data formats for version 1 and 2 of the key-value secrets engine.
-        if data["metadata"]["version"].is_number() {
-            for (name, value) in data["data"].as_object().unwrap() {
-                let name = name.to_string();
-                let value = match value.as_str() {
-                    Some(s) => s.to_string(),
-                    None => {
-                        warn!("the value for {} is not a string and will be skipped", name);
-                        continue;
-                    }
-                };
-
-                vars.insert(name, value);
-            }
+        let data = if data["metadata"]["version"].is_number() {
+            data["data"].as_object().unwrap()
         } else {
-            for (name, value) in data.as_object().unwrap() {
-                let name = name.to_string();
-                let value = match value.as_str() {
-                    Some(s) => s.to_string(),
-                    None => {
-                        warn!("the value for {} is not a string and will be skipped", name);
-                        continue;
-                    }
-                };
+            data.as_object().unwrap()
+        };
 
-                vars.insert(name, value);
-            }
+        for (name, value) in data {
+            let name = name.to_string();
+            let value = match value.as_str() {
+                Some(s) => s.to_string(),
+                None => {
+                    warn!("the value for {} in {} is not a string and cannot be saved, see https://github.com/sjparkinson/vdot/issues/21 for more information", name, path);
+                    continue;
+                }
+            };
+
+            vars.insert(name, value);
         }
     }
 
