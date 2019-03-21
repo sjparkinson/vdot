@@ -83,7 +83,12 @@ pub fn run(args: Args) -> Result<(), Error> {
     // Key-value store for the environment variable downloaded from Vault.
     let mut vars: HashMap<String, String> = HashMap::new();
 
-    for path in args.paths {
+    let mut paths = args.paths;
+
+    // Reverse the order of paths so that latter paths with a duplicate variable name are overwritten.
+    paths.reverse();
+
+    for path in paths {
         // Build the Vault API url.
         let url = args.vault_address.join("v1/")?;
         let url = url.join(path.as_str())?;
@@ -116,10 +121,10 @@ pub fn run(args: Args) -> Result<(), Error> {
 
         for (name, value) in data {
             let name = name.to_string();
-            let value = match value.as_str() {
-                Some(s) => s.to_string(),
+            let value = match stringify_json_value(&value) {
+                Some(value) => value,
                 None => {
-                    warn!("the value for {} in {} is not a string and cannot be saved, see https://github.com/sjparkinson/vdot/issues/21 for more information", name, path);
+                    warn!("the value for {} in {} is an array or object and cannot be saved", name, path);
                     continue;
                 }
             };
@@ -153,4 +158,28 @@ pub fn run(args: Args) -> Result<(), Error> {
     );
 
     Ok(())
+}
+
+fn stringify_json_value(value: &serde_json::Value) -> Option<String> {
+    if value.is_string() {
+        return Some(value.as_str().unwrap().to_string());
+    }
+
+    if value.is_boolean() {
+        return Some(value.as_bool().unwrap().to_string());
+    }
+
+    if value.is_null() {
+        return Some("".to_string());
+    }
+
+    if value.is_f64() {
+        return Some(value.as_f64().unwrap().to_string());
+    }
+
+    if value.is_i64() {
+        return Some(value.as_i64().unwrap().to_string());
+    }
+
+    None
 }
