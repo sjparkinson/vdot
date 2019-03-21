@@ -32,6 +32,14 @@ pub struct Args {
     #[structopt(name = "PATH", raw(required = "true"))]
     pub paths: Vec<String>,
 
+    /// Command to spawn
+    /// 
+    /// This option will spawn the given command with the environment variables downloaded from Vault.
+    /// 
+    /// e.g. `vdot -c 'npm start' secret/foo secret/bar`
+    #[structopt(short = "c", long = "command")]
+    pub command: Option<String>,
+
     /// Vault token used to authenticate requests
     ///
     /// This can also be provided by setting the VAULT_TOKEN environment variable.
@@ -125,7 +133,7 @@ pub fn run(args: Args) -> Result<(), Error> {
                 Some(value) => value,
                 None => {
                     warn!(
-                        "the value for {} in {} is an array or object and cannot be saved",
+                        "the value for {} in {} is an array or object and will be ignored",
                         name, path
                     );
                     continue;
