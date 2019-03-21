@@ -39,11 +39,11 @@ FLAGS:
     -v, --verbose    Verbose mode
 
 OPTIONS:
-        --vault-address <vault_address>    The URL to access Vault. [env: VAULT_ADDR]
-        --vault-token <vault_token>        Your Vault token. [env: VAULT_TOKEN]
+        --vault-address <vault_address>    Vault server address [env: VAULT_ADDR]
+        --vault-token <vault_token>        Vault token used to authenticate requests [env: VAULT_TOKEN]
 
 ARGS:
-    <PATH>...    Vault paths
+    <PATH>...    Path to the Vault secrets
 ```
 
 **Key-Value Version 2**

@@ -22,27 +22,31 @@ pub struct VaultResponseError {
 #[derive(StructOpt, Debug)]
 #[structopt(author = "", about = "", usage = "vdot [FLAGS] <OPTIONS> <PATH>...")]
 pub struct Args {
-    /// Your Vault paths.
+    /// Path to the Vault secrets
+    /// 
+    /// If duplicate keys are found when providing more than one path the value from the first path will be saved.
     ///
-    /// Something like `secret/foo-bar` for v1, and `secret/data/foo-bar` for v2 of the Vault key-value secrets engine.
+    /// Use something like `secret/foo-bar` for v1 of the Vault key-value secrets engine, and `secret/data/foo-bar` for v2.
     ///
     /// See https://www.vaultproject.io/docs/secrets/kv/index.html for more information.
     #[structopt(name = "PATH", raw(required = "true"))]
     pub paths: Vec<String>,
 
-    /// Your Vault token.
+    /// Vault token used to authenticate requests
     ///
-    /// This can be provided by setting the VAULT_TOKEN environment variable.
+    /// This can also be provided by setting the VAULT_TOKEN environment variable.
+    /// 
+    /// See https://www.vaultproject.io/docs/concepts/auth.html#tokens for more information.
     #[structopt(long = "vault-token", env = "VAULT_TOKEN", hide_env_values = true)]
     pub vault_token: String,
 
-    /// The URL to access Vault.
-    ///     
-    /// This can be provided by setting the VAULT_ADDR environment variable.
+    /// Vault server address
+    ///
+    /// This can also be provided by setting the VAULT_ADDR environment variable.
     #[structopt(long = "vault-address", env = "VAULT_ADDR", hide_env_values = true)]
     pub vault_address: Url,
 
-    /// Verbose mode.
+    /// Verbose mode
     #[structopt(short = "v", long = "verbose", parse(from_occurrences))]
     pub verbose: u8,
 }
