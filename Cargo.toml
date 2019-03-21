@@ -1,6 +1,6 @@
 [package]
 name = "vdot"
-description = "Create your .env files using Vault."
+description = "Create your .env files and start processes using Vault."
 version = "0.0.0"
 authors = ["Samuel Parkinson <sam.james.parkinson@gmail.com>"]
 edition = "2018"
