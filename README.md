@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/sjparkinson/vdot.svg?branch=master)](https://travis-ci.org/sjparkinson/vdot)
 
-Create your `.env` files using Vault.
+Create your `.env` files and start processes using Vault.
 
 ## Installation
 
@@ -39,6 +39,7 @@ FLAGS:
     -v, --verbose    Verbose mode
 
 OPTIONS:
+    -c, --command <command>                Command to spawn
         --vault-address <vault_address>    Vault server address [env: VAULT_ADDR]
         --vault-token <vault_token>        Vault token used to authenticate requests [env: VAULT_TOKEN]
 
@@ -46,7 +47,7 @@ ARGS:
     <PATH>...    Path to the Vault secrets
 ```
 
-**Key-Value Version 2**
+> The following assumes you are using version two of Vault's key-value secret engine. Check out `vdot --help` for more information.
 
 ```bash
 $ vault kv put secret/foo-bar ENV=production LOG_LEVEL=info
@@ -55,16 +56,6 @@ $ vdot --vault-token "$(cat ~/.vault-token)" secret/data/foo-bar secret/data/fiz
 info: saved 2 environment variables to .env
 $ cat .env
 ENV=production
-LOG_LEVEL=debug
-```
-
-**Key-Value Version 1**
-
-```bash
-$ vault kv put secret/foo-bar LOG_LEVEL=info
-$ vdot --vault-token "$(cat ~/.vault-token)" secret/foo-bar
-info: saved 1 environment variable to .env
-$ cat .env
 LOG_LEVEL=info
 ```
 
