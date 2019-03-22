@@ -6,16 +6,12 @@ Create your `.env` files and start processes using Vault.
 
 ## Installation
 
-**macOS** and **Linux**
-
-This script will download the latest release from GitHub and install `vdot` under `/usr/local/bin`.
+**Homebrew** or **Linuxbrew**
 
 ```shell
-curl https://gist.githubusercontent.com/sjparkinson/327dc78c60ab81a06c946630b4288910/raw/crate-gh-install.sh \
-| sh -s -- --git sjparkinson/vdot
+brew tap sjparkinson/vdot https://github.com/sjparkinson/vdot
+brew install vdot
 ```
-
-You can also download the executable manually from https://github.com/sjparkinson/vdot/releases/latest.
 
 **Cargo**
 
@@ -24,6 +20,10 @@ You can also download the executable manually from https://github.com/sjparkinso
 ```shell
 cargo install vdot
 ```
+
+**Download**
+
+You can download the executable manually from https://github.com/sjparkinson/vdot/releases/latest.
 
 ## Usage
 
