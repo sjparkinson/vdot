@@ -1,0 +1,18 @@
+tap: sjparkinson/vdot/vdot.rb
+asset: vdot-$VERSION-x86_64-apple-darwin.tar.gz
+template: |
+  class Vdot < Formula
+    desc "$REPO_DESCRIPTION"
+    homepage "$REPO_WEBSITE"
+
+    url "$STABLE_ASSET_URL"
+    sha256 "$STABLE_ASSET_SHA256"
+
+    def install
+      bin.install "vdot"
+    end
+
+    test do
+      system "#{bin}/vdot", "--help"
+    end
+  end
