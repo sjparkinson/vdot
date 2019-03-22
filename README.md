@@ -6,7 +6,7 @@ Create your `.env` files and start processes using Vault.
 
 ## Installation
 
-**Homebrew** or **Linuxbrew**
+**Homebrew**
 
 ```shell
 brew tap sjparkinson/vdot https://github.com/sjparkinson/vdot
@@ -23,7 +23,7 @@ cargo install vdot
 
 **Download**
 
-You can download the executable manually from https://github.com/sjparkinson/vdot/releases/latest.
+You can download executables manually from https://github.com/sjparkinson/vdot/releases/latest.
 
 ## Usage
 
