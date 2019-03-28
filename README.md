@@ -6,7 +6,7 @@ Create your `.env` files and start processes using Vault.
 
 ## Installation
 
-**Homebrew**
+**Homebrew** and **Linuxbrew**
 
 > You can install `brew` from https://brew.sh.
 
