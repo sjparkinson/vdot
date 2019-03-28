@@ -1,3 +1,14 @@
+# This is a formula for enabling vdot to be installed with Homebrew.
+#
+# You can install vdot on macOS with `brew` by running:
+#
+# ```
+# brew tap sjparkinson/vdot https://github.com/sjparkinson/vdot
+# brew install vdot
+# ```
+#
+# See https://docs.brew.sh/Taps for more information.
+
 class Vdot < Formula
   desc "Create your .env files and start processes using Vault"
   homepage "https://github.com/sjparkinson/vdot"
