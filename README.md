@@ -8,6 +8,8 @@ Create your `.env` files and start processes using Vault.
 
 **Homebrew**
 
+> You can install `brew` from https://brew.sh.
+
 ```shell
 brew tap sjparkinson/vdot https://github.com/sjparkinson/vdot
 brew install vdot
@@ -23,7 +25,7 @@ cargo install vdot
 
 **Download**
 
-You can download executables manually from https://github.com/sjparkinson/vdot/releases/latest.
+You can download `vdot` executables for macOS and Linux from https://github.com/sjparkinson/vdot/releases/latest.
 
 ## Usage
 
@@ -47,7 +49,7 @@ ARGS:
     <PATH>...    Path to the Vault secrets
 ```
 
-> The following assumes you are using version two of Vault's key-value secret engine. Check out `vdot --help` for more information.
+The following assumes you are [using **version two** of Vault's key-value secret engine](https://www.vaultproject.io/docs/secrets/kv/index.html). Check out `vdot --help` for more information.
 
 ```bash
 $ vault kv put secret/foo-bar ENV=production LOG_LEVEL=info
