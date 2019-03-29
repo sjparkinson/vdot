@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufWriter;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use structopt::StructOpt;
 use url::Url;
@@ -21,7 +21,7 @@ pub struct VaultResponseError {
 }
 
 #[derive(StructOpt, Debug)]
-#[structopt(author = "", about = "", usage = "vdot [FLAGS] <OPTIONS> <PATH>...")]
+#[structopt(author = "", about = "", usage = "vdot [FLAGS] [OPTIONS] <PATH>...")]
 pub struct Args {
     /// Path to the Vault secrets
     ///
@@ -29,21 +29,36 @@ pub struct Args {
     ///
     /// Use something like `secret/foo-bar` for v1 of the Vault key-value secrets engine, and `secret/data/foo-bar` for v2.
     ///
+    /// e.g. `vdot secret/foo secret/bar`
+    ///
     /// See https://www.vaultproject.io/docs/secrets/kv/index.html for more information.
     #[structopt(name = "PATH", raw(required = "true"))]
     pub paths: Vec<String>,
+
+    /// Write to the given file
+    ///
+    /// e.g. `vdot --output .env.test secret/foo`
+    #[structopt(
+        short = "o",
+        long = "output",
+        default_value = ".env",
+        parse(from_os_str)
+    )]
+    pub output: PathBuf,
 
     /// Command to spawn
     ///
     /// This option will spawn the given command with the environment variables downloaded from Vault.
     ///
-    /// e.g. `vdot -c 'npm start' secret/foo secret/bar`
-    #[structopt(short = "c", long = "command")]
+    /// e.g. `vdot -c 'npm start' secret/foo`
+    #[structopt(short = "c", long = "command", conflicts_with = "output")]
     pub command: Option<String>,
 
     /// Vault token used to authenticate requests
     ///
     /// This can also be provided by setting the VAULT_TOKEN environment variable.
+    ///
+    /// e.g. `vdot --vault-token $(cat ~/.vault-token) secret/foo`
     ///
     /// See https://www.vaultproject.io/docs/concepts/auth.html#tokens for more information.
     #[structopt(long = "vault-token", env = "VAULT_TOKEN", hide_env_values = true)]
@@ -52,6 +67,8 @@ pub struct Args {
     /// Vault server address
     ///
     /// This can also be provided by setting the VAULT_ADDR environment variable.
+    ///
+    /// e.g. `vdot --vault-address http://127.0.0.1:8200 secret/foo`
     #[structopt(long = "vault-address", env = "VAULT_ADDR", hide_env_values = true)]
     pub vault_address: Url,
 
@@ -66,14 +83,16 @@ pub struct Args {
 ///
 /// ```
 /// use log::error;
+/// use std::path::PathBuf;
 /// use std::process;
 /// use vdot::Args;
 ///
 /// let args = Args {
 ///     paths: vec![],
+///     output: PathBuf::from(".env"),
+///     command: None,
 ///     vault_token: "hunter2".to_string(),
 ///     vault_address: url::Url::parse("http://127.0.0.1:8200").unwrap(),
-///     command: None,
 ///     verbose: 0
 /// };
 ///
@@ -147,10 +166,10 @@ pub fn run(args: Args) -> Result<(), Error> {
     }
 
     if let Some(command) = args.command {
-        start_process(command, vars)
-    } else {
-        save_dotenv(vars)
+        return start_process(command, vars);
     }
+
+    save_dotenv(args.output, vars)
 }
 
 fn start_process(process: String, vars: HashMap<String, String>) -> Result<(), Error> {
@@ -167,12 +186,12 @@ fn start_process(process: String, vars: HashMap<String, String>) -> Result<(), E
     Ok(())
 }
 
-fn save_dotenv(vars: HashMap<String, String>) -> Result<(), Error> {
-    if Path::new(".env").is_file() {
-        warn!("overwriting existing .env file");
+fn save_dotenv(path: PathBuf, vars: HashMap<String, String>) -> Result<(), Error> {
+    if Path::new(&path).is_file() {
+        warn!("overwriting existing file at {}", path.display());
     }
 
-    let file = File::create(".env")?;
+    let file = File::create(&path)?;
     let mut buf = BufWriter::new(file);
 
     let count = vars.len();
@@ -187,9 +206,10 @@ fn save_dotenv(vars: HashMap<String, String>) -> Result<(), Error> {
     }
 
     info!(
-        "saved {} environment {} to .env",
+        "saved {} environment {} to {}",
         count,
-        if count == 1 { "variable" } else { "variables" }
+        if count == 1 { "variable" } else { "variables" },
+        path.display()
     );
 
     Ok(())

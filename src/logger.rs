@@ -1,6 +1,6 @@
 use fern::colors::ColoredLevelConfig;
 use fern::Dispatch as Logger;
-use log::{debug, Level};
+use log::Level;
 use std::io;
 
 /// Configure logging.
@@ -62,6 +62,4 @@ pub fn init(level: Level) {
         )
         .apply()
         .expect("failed to initialise logging");
-
-    debug!("initialised to log {} messages", level);
 }
