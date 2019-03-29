@@ -14,11 +14,11 @@ class Vdot < Formula
   homepage "https://github.com/sjparkinson/vdot"
 
   if OS.mac?
-    url "https://github.com/sjparkinson/vdot/releases/download/v0.3.4/vdot-v0.3.4-x86_64-apple-darwin.tar.gz"
-    sha256 "4898d033b8d48ec0a960dd8d54f79324e26f7649d21718fb320a75e218fd94b0"
+    url "https://github.com/sjparkinson/vdot/releases/download/v0.3.6/vdot-v0.3.6-x86_64-apple-darwin.tar.gz"
+    sha256 "361b5f0595735454724577d3c4553c697dd7fed4d7e0573fd387273b1ae2f587"
   elsif OS.linux?
-    url "https://github.com/sjparkinson/vdot/releases/download/v0.3.4/vdot-v0.3.4-x86_64-unknown-linux-musl.tar.gz"
-    sha256 "f4dd7845dc319038b34fcc50327628f123dfea1aee1e8d5e767836bd86559c1e"
+    url "https://github.com/sjparkinson/vdot/releases/download/v0.3.6/vdot-v0.3.6-x86_64-unknown-linux-musl.tar.gz"
+    sha256 "6ac26e727928efe3ae33b556d83e3939faf7d5a590e25a3bf47ea5ec86b3ece8"
   end
 
   def install
