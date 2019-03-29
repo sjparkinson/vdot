@@ -33,7 +33,7 @@ You can download `vdot` executables for macOS and Linux from https://github.com/
 vdot
 
 USAGE:
-    vdot [FLAGS] <OPTIONS> <PATH>...
+    vdot [FLAGS] [OPTIONS] <PATH>...
 
 FLAGS:
     -h, --help       Prints help information
@@ -42,6 +42,7 @@ FLAGS:
 
 OPTIONS:
     -c, --command <command>                Command to spawn
+    -o, --output <output>                  Write to the given file [default: .env]
         --vault-address <vault_address>    Vault server address [env: VAULT_ADDR]
         --vault-token <vault_token>        Vault token used to authenticate requests [env: VAULT_TOKEN]
 
