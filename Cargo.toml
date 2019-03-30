@@ -8,7 +8,7 @@ repository = "https://github.com/sjparknson/vdot"
 readme = "README.md"
 license = "MIT"
 categories = ["command-line-utilities", "config"]
-keywords = ["cli"]
+keywords = ["cli", "env", "dotenv", "config"]
 
 [badges]
 travis-ci = { repository = "sjparkinson/vdot", branch = "master" }
