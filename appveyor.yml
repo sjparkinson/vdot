@@ -1,0 +1,46 @@
+# Based on the "trust" template v0.1.2
+# https://github.com/japaric/trust/tree/v0.1.2
+
+environment:
+  matrix:
+    - TARGET: x86_64-pc-windows-msvc
+
+install:
+  - appveyor DownloadFile https://win.rustup.rs/ -FileName rustup-init.exe
+  - rustup-init -y --default-toolchain stable --default-host %TARGET%
+  - set PATH=%PATH%;%USERPROFILE%\.cargo\bin
+  - rustup component add rustfmt clippy
+  - rustc -vV
+  - cargo -vV
+  - cargo fmt --version
+  - cargo clippy -V
+
+build_script:
+  - cargo build --target %TARGET%
+
+test_script:
+  - cargo fmt -- --check
+  - cargo clippy --target %TARGET%
+  - cargo test --target %TARGET%
+
+before_deploy:
+  - cargo build --target %TARGET% --release
+  - ps: scripts\before_deploy.ps1
+
+deploy:
+  artifact: /.*\.zip/
+  auth_token:
+    secure: CsdL/CTbBWyPqXHKCABx6DpWFUE/4BVoXxGkT1ArTd6UtJCzh+plitVSmGeq0yQq
+  description: ''
+  on:
+    appveyor_repo_tag: true
+  provider: GitHub
+
+cache:
+  - C:\Users\appveyor\.cargo\registry
+  - target
+
+notifications:
+  - provider: Email
+    on_build_success: false
+    on_build_failure: false

@@ -1,6 +1,6 @@
 # vdot
 
-[![Build Status](https://travis-ci.org/sjparkinson/vdot.svg?branch=master)](https://travis-ci.org/sjparkinson/vdot)
+[![Build Status](https://travis-ci.org/sjparkinson/vdot.svg?branch=master)](https://travis-ci.org/sjparkinson/vdot) [![Build status](https://ci.appveyor.com/api/projects/status/jdi9mkoeauoa1ike/branch/master?svg=true)](https://ci.appveyor.com/project/sjparkinson/vdot/branch/master)
 
 Create your `.env` files and start processes using Vault.
 
@@ -25,7 +25,7 @@ cargo install vdot
 
 **Download**
 
-You can download `vdot` executables for macOS and Linux from https://github.com/sjparkinson/vdot/releases/latest.
+You can download executables for macOS, Linux, and Windows from https://github.com/sjparkinson/vdot/releases/latest.
 
 ## Usage
 
