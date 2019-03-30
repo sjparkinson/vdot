@@ -18,7 +18,4 @@ Copy-Item "$SRC_DIR\LICENSE" '.\'
 
 Push-AppveyorArtifact "$ZIP"
 
-Remove-Item *.* -Force
-Set-Location ..
-Remove-Item $STAGE
 Set-Location $SRC_DIR
