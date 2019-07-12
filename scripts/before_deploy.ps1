@@ -11,6 +11,7 @@ Set-Location $STAGE
 $ZIP = "$SRC_DIR\vdot-$($Env:APPVEYOR_REPO_TAG_NAME)-$($Env:TARGET).zip"
 
 Copy-Item "$SRC_DIR\target\$($Env:TARGET)\release\vdot.exe" '.\'
+Copy-Item "$SRC_DIR\target\$($Env:TARGET)\release\vproc.exe" '.\'
 Copy-Item "$SRC_DIR\README.md" '.\'
 Copy-Item "$SRC_DIR\LICENSE" '.\'
 

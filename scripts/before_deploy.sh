@@ -11,4 +11,4 @@ cargo build --target "$TARGET" --release
 cp README.md LICENSE "target/$TARGET/release/"
 
 # Package up the release into a .tar.gz
-tar -C "target/$TARGET/release/" -czf "target/vdot-$TRAVIS_TAG-$TARGET.tar.gz" vdot README.md LICENSE
+tar -C "target/$TARGET/release/" -czf "target/vdot-$TRAVIS_TAG-$TARGET.tar.gz" vdot vproc README.md LICENSE
