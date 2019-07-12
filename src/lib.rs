@@ -22,7 +22,7 @@ pub struct VaultResponseError {
 
 #[derive(StructOpt, Debug)]
 #[structopt(author = "", about = "", usage = "vdot [FLAGS] [OPTIONS] <PATH>...")]
-pub struct Args {
+pub struct DotArgs {
     /// Path to the Vault secrets
     ///
     /// If duplicate keys are found when providing more than one path the value from the first path will be saved.
@@ -45,14 +45,6 @@ pub struct Args {
         parse(from_os_str)
     )]
     pub output: PathBuf,
-
-    /// Command to spawn
-    ///
-    /// This option will spawn the given command with the environment variables downloaded from Vault.
-    ///
-    /// e.g. `vdot -c 'npm start' secret/foo`
-    #[structopt(short = "c", long = "command", conflicts_with = "output")]
-    pub command: Option<String>,
 
     /// Vault token used to authenticate requests
     ///
@@ -85,18 +77,17 @@ pub struct Args {
 /// use log::error;
 /// use std::path::PathBuf;
 /// use std::process;
-/// use vdot::Args;
+/// use vdot::DotArgs;
 ///
-/// let args = Args {
+/// let args = DotArgs {
 ///     paths: vec![],
 ///     output: PathBuf::from(".env"),
-///     command: None,
 ///     vault_token: "hunter2".to_string(),
 ///     vault_address: url::Url::parse("http://127.0.0.1:8200").unwrap(),
 ///     verbose: 0
 /// };
 ///
-/// if let Err(err) = vdot::run(args) {
+/// if let Err(err) = vdot::run_dot(args) {
 ///     error!("{}", err);
 ///     process::exit(1);
 /// }
@@ -105,7 +96,7 @@ pub struct Args {
 /// # Errors
 ///
 /// Returns an error if anything goes wrong, and exits the process with a status code of 1.
-pub fn run(args: Args) -> Result<(), Error> {
+pub fn run_dot(args: DotArgs) -> Result<(), Error> {
     // Create a new http client to make use of connection pooling.
     let http = reqwest::Client::new();
 
@@ -165,11 +156,147 @@ pub fn run(args: Args) -> Result<(), Error> {
         }
     }
 
-    if let Some(command) = args.command {
-        return start_process(command, vars);
+    return save_dotenv(args.output, vars);
+}
+
+#[derive(StructOpt, Debug)]
+#[structopt(
+    author = "",
+    about = "",
+    usage = "vproc [FLAGS] [OPTIONS] <COMMAND> <PATH>..."
+)]
+pub struct ProcArgs {
+    /// Command to spawn
+    ///
+    /// This will spawn the given command with the environment variables downloaded from Vault.
+    ///
+    /// e.g. `vproc 'npm start' secret/foo`
+    #[structopt(name = "COMMAND")]
+    pub command: String,
+
+    /// Path to the Vault secrets
+    ///
+    /// If duplicate keys are found when providing more than one path the value from the first path will be saved.
+    ///
+    /// Use something like `secret/foo-bar` for v1 of the Vault key-value secrets engine, and `secret/data/foo-bar` for v2.
+    ///
+    /// e.g. `vproc 'npm start' secret/foo secret/bar`
+    ///
+    /// See https://www.vaultproject.io/docs/secrets/kv/index.html for more information.
+    #[structopt(name = "PATH", raw(required = "true"))]
+    pub paths: Vec<String>,
+
+    /// Vault token used to authenticate requests
+    ///
+    /// This can also be provided by setting the VAULT_TOKEN environment variable.
+    ///
+    /// e.g. `vproc --vault-token $(cat ~/.vault-token) 'npm start' secret/foo`
+    ///
+    /// See https://www.vaultproject.io/docs/concepts/auth.html#tokens for more information.
+    #[structopt(long = "vault-token", env = "VAULT_TOKEN", hide_env_values = true)]
+    pub vault_token: String,
+
+    /// Vault server address
+    ///
+    /// This can also be provided by setting the VAULT_ADDR environment variable.
+    ///
+    /// e.g. `vproc --vault-address http://127.0.0.1:8200 'npm start' secret/foo`
+    #[structopt(long = "vault-address", env = "VAULT_ADDR", hide_env_values = true)]
+    pub vault_address: Url,
+
+    /// Verbose mode
+    #[structopt(short = "v", long = "verbose", parse(from_occurrences))]
+    pub verbose: u8,
+}
+
+/// Use the given command line arguments to run vproc.
+///
+/// # Examples
+///
+/// ```
+/// use log::error;
+/// use std::path::PathBuf;
+/// use std::process;
+/// use vdot::ProcArgs;
+///
+/// let args = ProcArgs {
+///     paths: vec![],
+///     command: "cargo --help".to_string(),
+///     vault_token: "hunter2".to_string(),
+///     vault_address: url::Url::parse("http://127.0.0.1:8200").unwrap(),
+///     verbose: 0
+/// };
+///
+/// if let Err(err) = vdot::run_proc(args) {
+///     error!("{}", err);
+///     process::exit(1);
+/// }
+/// ```
+///
+/// # Errors
+///
+/// Returns an error if anything goes wrong, and exits the process with a status code of 1.
+pub fn run_proc(args: ProcArgs) -> Result<(), Error> {
+    // Create a new http client to make use of connection pooling.
+    let http = reqwest::Client::new();
+
+    // Key-value store for the environment variable downloaded from Vault.
+    let mut vars: HashMap<String, String> = HashMap::new();
+
+    let mut paths = args.paths;
+
+    // Reverse the order of paths so that latter paths with a duplicate variable name are overwritten.
+    paths.reverse();
+
+    for path in paths {
+        // Build the Vault API url.
+        let url = args.vault_address.join("v1/")?;
+        let url = url.join(path.as_str())?;
+
+        debug!("making request to \"{}\"", url);
+
+        let req = http.get(url).header(
+            reqwest::header::AUTHORIZATION,
+            format!("Bearer {}", args.vault_token),
+        );
+
+        let mut resp = req.send()?;
+
+        if !resp.status().is_success() {
+            return Err(VaultResponseError {
+                status: resp.status(),
+                path,
+            })?;
+        }
+
+        let resp: serde_json::Value = resp.json()?;
+        let data = &resp["data"];
+
+        // Handle the diffrent data formats for version 1 and 2 of the key-value secrets engine.
+        let data = if data["metadata"]["version"].is_number() {
+            data["data"].as_object().unwrap()
+        } else {
+            data.as_object().unwrap()
+        };
+
+        for (name, value) in data {
+            let name = name.to_string();
+            let value = match stringify_json_value(&value) {
+                Some(value) => value,
+                None => {
+                    warn!(
+                        "the value for {} in {} is an array or object and will be ignored",
+                        name, path
+                    );
+                    continue;
+                }
+            };
+
+            vars.insert(name, value);
+        }
     }
 
-    save_dotenv(args.output, vars)
+    return start_process(args.command, vars);
 }
 
 fn start_process(process: String, vars: HashMap<String, String>) -> Result<(), Error> {

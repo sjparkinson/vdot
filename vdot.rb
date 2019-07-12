@@ -23,9 +23,11 @@ class Vdot < Formula
 
   def install
     bin.install "vdot"
+    bin.install "vproc"
   end
 
   test do
     system "#{bin}/vdot", "--help"
+    system "#{bin}/proc", "--help"
   end
 end
