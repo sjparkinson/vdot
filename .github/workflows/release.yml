@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    tags:
+      # Push events to matching v*, i.e. v1.0, v20.15.10
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        item:
+          - os: macOS-latest
+            target: x86_64-apple-darwin
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+
+    runs-on: ${{ matrix.item.os }}
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Install apt packages
+        if: matrix.item.os == 'ubuntu-latest'
+        shell: bash
+        run: sudo apt install musl-tools
+
+      - name: Install rust stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.item.target }}
+          override: true
+
+      - name: Run cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target "${{ matrix.item.target }}"
+
+      - name: Update the version in Cargo.toml
+        if: matrix.item.os == 'ubuntu-latest'
+        shell: bash
+        run: perl -i -pe "s/\"0.0.0\"/\"${{ github.ref }}\"/" Cargo.toml
+
+      - name: Run cargo publish
+        if: matrix.item.os == 'ubuntu-latest'
+        uses: actions-rs/cargo@v1
+        env:
+           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        with:
+          command: publish
+          args: --no-verify --allow-dirty
+
+      - name: Archive macOS and linux artifacts
+        if: matrix.item.os == 'ubuntu-latest' || matrix.item.os == 'macOS-latest'
+        shell: bash
+        run: |
+          zip -9 "target/vdot-${{ github.ref }}-${{ matrix.item.target }}.zip" \
+            target/${{ matrix.item.target }}/release/vdot README.md LICENSE
+
+      - name: Archive Windows artifacts
+        if: matrix.item.os == 'windows-latest'
+        shell: bash
+        run: |
+          zip -9 "target/vdot-${{ github.ref }}-${{ matrix.item.target }}.zip" \
+            target/${{ matrix.item.target }}/release/vdot.exe README.md LICENSE
+
+      - name: Create GitHub release
+        id: release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload artifacts to GitHub release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }} 
+          asset_path: target/vdot-${{ github.ref }}-${{ matrix.item.target }}.zip
+          asset_name: vdot-${{ github.ref }}-${{ matrix.item.target }}.zip
+          asset_content_type: application/zip
