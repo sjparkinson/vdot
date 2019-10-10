@@ -71,7 +71,7 @@ jobs:
 
       - name: Create GitHub release
         id: release
-        uses: actions/create-release@v1
+        uses: actions/create-release@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -81,7 +81,7 @@ jobs:
           prerelease: false
 
       - name: Upload artifacts to GitHub release
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
