@@ -1,8 +1,6 @@
 # vdot
 
-[![Build Status](https://travis-ci.com/sjparkinson/vdot.svg?branch=master)](https://travis-ci.com/sjparkinson/vdot) [![Build status](https://ci.appveyor.com/api/projects/status/jdi9mkoeauoa1ike/branch/master?svg=true)](https://ci.appveyor.com/project/sjparkinson/vdot/branch/master)
-
-Create your `.env` files and start processes using Vault.
+Create your `.env` files and start processes using HashiCorp Vault.
 
 ## Installation
 
