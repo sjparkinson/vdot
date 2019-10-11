@@ -23,6 +23,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
+      - name: Get the version
+        id: version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+
       - name: Install apt packages
         if: matrix.item.os == 'ubuntu-latest'
         shell: bash
@@ -44,7 +48,7 @@ jobs:
       - name: Update the version in Cargo.toml
         if: matrix.item.os == 'ubuntu-latest'
         shell: bash
-        run: perl -i -pe "s/\"0.0.0\"/\"${GITHUB_REF/refs\/tags\/v/}\"/" Cargo.toml
+        run: perl -i -pe "s/\"0.0.0\"/\"${{ steps.version.outputs.VERSION }}\"/" Cargo.toml
 
       - name: Run cargo publish
         if: matrix.item.os == 'ubuntu-latest'
@@ -59,14 +63,14 @@ jobs:
         if: matrix.item.os == 'ubuntu-latest' || matrix.item.os == 'macOS-latest'
         shell: bash
         run: |
-          zip -9 "target/vdot-${{ github.ref }}-${{ matrix.item.target }}.zip" \
+          zip -9 "target/vdot-${{ steps.version.outputs.VERSION }}-${{ matrix.item.target }}.zip" \
             target/${{ matrix.item.target }}/release/vdot README.md LICENSE
 
       - name: Archive Windows artifacts
         if: matrix.item.os == 'windows-latest'
         shell: bash
         run: |
-          zip -9 "target/vdot-${{ github.ref }}-${{ matrix.item.target }}.zip" \
+          zip -9 "target/vdot-${{ steps.version.outputs.VERSION }}-${{ matrix.item.target }}.zip" \
             target/${{ matrix.item.target }}/release/vdot.exe README.md LICENSE
 
       - name: Create GitHub release
@@ -75,8 +79,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          release_name: Release ${{ steps.version.outputs.VERSION }}
           draft: false
           prerelease: false
 
@@ -85,7 +89,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.release.outputs.upload_url }} 
-          asset_path: target/vdot-${{ github.ref }}-${{ matrix.item.target }}.zip
-          asset_name: vdot-${{ github.ref }}-${{ matrix.item.target }}.zip
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: target/vdot-${{ steps.version.outputs.VERSION }}-${{ matrix.item.target }}.zip
+          asset_name: vdot-${{ steps.version.outputs.VERSION }}-${{ matrix.item.target }}.zip
           asset_content_type: application/zip
