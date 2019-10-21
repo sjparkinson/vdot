@@ -6,7 +6,7 @@ on:
       - created
 
 jobs:
-  publish:
+  cargo-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -14,11 +14,11 @@ jobs:
       - name: Get the version
         id: version
         shell: bash
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+        run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\/v/}
 
       - name: Update the version in Cargo.toml
         shell: bash
-        run: perl -i -pe "s/\"0.0.0\"/\"${{ steps.tag.outputs.tag }}\"/" Cargo.toml
+        run: perl -i -pe "s/\"0.0.0\"/\"${{ steps.tag.outputs.version }}\"/" Cargo.toml
 
       - name: Run cargo publish
         uses: actions-rs/cargo@v1
@@ -28,7 +28,7 @@ jobs:
           command: publish
           args: --no-verify --allow-dirty
 
-  build:
+  github-release:
     strategy:
       matrix:
         item:
