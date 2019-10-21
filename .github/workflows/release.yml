@@ -7,19 +7,8 @@ on:
       - 'v*'
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        item:
-          - os: macOS-latest
-            target: x86_64-apple-darwin
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-musl
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-
-    runs-on: ${{ matrix.item.os }}
-
+  build-linux:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
 
@@ -28,7 +17,6 @@ jobs:
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
 
       - name: Install apt packages
-        if: matrix.item.os == 'ubuntu-latest'
         shell: bash
         run: sudo apt install musl-tools
 
@@ -36,22 +24,20 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: ${{ matrix.item.target }}
+          target: x86_64-unknown-linux-musl
           override: true
 
       - name: Run cargo build
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --target "${{ matrix.item.target }}"
+          args: --release --target "x86_64-unknown-linux-musl"
 
       - name: Update the version in Cargo.toml
-        if: matrix.item.os == 'ubuntu-latest'
         shell: bash
         run: perl -i -pe "s/\"0.0.0\"/\"${{ steps.version.outputs.VERSION }}\"/" Cargo.toml
 
       - name: Run cargo publish
-        if: matrix.item.os == 'ubuntu-latest'
         uses: actions-rs/cargo@v1
         env:
            CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
@@ -59,19 +45,11 @@ jobs:
           command: publish
           args: --no-verify --allow-dirty
 
-      - name: Archive macOS and linux artifacts
-        if: matrix.item.os == 'ubuntu-latest' || matrix.item.os == 'macOS-latest'
+      - name: Archive artifacts
         shell: bash
         run: |
-          zip -9 "target/vdot-${{ steps.version.outputs.VERSION }}-${{ matrix.item.target }}.zip" \
-            target/${{ matrix.item.target }}/release/vdot README.md LICENSE
-
-      - name: Archive Windows artifacts
-        if: matrix.item.os == 'windows-latest'
-        shell: bash
-        run: |
-          zip -9 "target/vdot-${{ steps.version.outputs.VERSION }}-${{ matrix.item.target }}.zip" \
-            target/${{ matrix.item.target }}/release/vdot.exe README.md LICENSE
+          zip -9 "target/vdot-${{ steps.version.outputs.VERSION }}-x86_64-unknown-linux-musl.zip" \
+            target/x86_64-unknown-linux-musl/release/vdot README.md LICENSE
 
       - name: Create GitHub release
         id: release
@@ -83,6 +61,84 @@ jobs:
           release_name: Release ${{ steps.version.outputs.VERSION }}
           draft: false
           prerelease: false
+
+      - name: Upload artifacts to GitHub release
+        uses: actions/upload-release-asset@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: target/vdot-${{ steps.version.outputs.VERSION }}-x86_64-unknown-linux-musl.zip
+          asset_name: vdot-${{ steps.version.outputs.VERSION }}-x86_64-unknown-linux-musl.zip
+          asset_content_type: application/zip
+
+  build-macos:
+    runs-on: macOS-latest
+    needs: build-linux
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Get the version
+        id: version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+
+      - name: Install rust stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: x86_64-apple-darwin
+          override: true
+
+      - name: Run cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target "x86_64-apple-darwin"
+
+      - name: Archive artifacts
+        shell: bash
+        run: |
+          zip -9 "target/vdot-${{ steps.version.outputs.VERSION }}-x86_64-apple-darwin.zip" \
+            target/x86_64-apple-darwin/release/vdot README.md LICENSE
+
+      - name: Upload artifacts to GitHub release
+        uses: actions/upload-release-asset@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: target/vdot-${{ steps.version.outputs.VERSION }}-x86_64-apple-darwin.zip
+          asset_name: vdot-${{ steps.version.outputs.VERSION }}-x86_64-apple-darwin.zip
+          asset_content_type: application/zip
+
+  build-windows:
+    runs-on: windows-latest
+    needs: build-linux
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Get the version
+        id: version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+
+      - name: Install rust stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: x86_64-pc-windows-msvc
+          override: true
+
+      - name: Run cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target "x86_64-pc-windows-msvc"
+
+      - name: Archive artifacts
+        shell: bash
+        run: |
+          zip -9 "target/vdot-${{ steps.version.outputs.VERSION }}-${{ matrix.item.target }}.zip" \
+            target/${{ matrix.item.target }}/release/vdot.exe README.md LICENSE
 
       - name: Upload artifacts to GitHub release
         uses: actions/upload-release-asset@master
