@@ -18,7 +18,7 @@ jobs:
 
       - name: Update the version in Cargo.toml
         shell: bash
-        run: perl -i -pe "s/\"0.0.0\"/\"${{ steps.tag.outputs.version }}\"/" Cargo.toml
+        run: perl -i -pe "s/\"0.0.0\"/\"${{ steps.version.outputs.version }}\"/" Cargo.toml
 
       - name: Run cargo publish
         uses: actions-rs/cargo@v1
