@@ -6,6 +6,28 @@ on:
       - created
 
 jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Get the version
+        id: version
+        shell: bash
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+
+      - name: Update the version in Cargo.toml
+        shell: bash
+        run: perl -i -pe "s/\"0.0.0\"/\"${{ steps.tag.outputs.tag }}\"/" Cargo.toml
+
+      - name: Run cargo publish
+        uses: actions-rs/cargo@v1
+        env:
+           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        with:
+          command: publish
+          args: --no-verify --allow-dirty
+
   build:
     strategy:
       matrix:
@@ -22,15 +44,14 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Get the version
-        id: version
-        shell: bash
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+      - name: Get the git tag
+        id: tag
+        run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
 
       - name: Get the GitHub release upload URL
         id: release
         shell: bash
-        run: echo ::set-output name=RELEASE_UPLOAD_URL::$(curl https://api.github.com/repos/${{ github.repository }}/releases/tags/${GITHUB_REF/refs\/tags\//} | jq -r '.upload_url')
+        run: echo ::set-output name=upload_url::$(curl https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.tag.outputs.tag }} | jq -r '.upload_url')
 
       - name: Install apt packages
         if: matrix.item.os == 'ubuntu-latest'
@@ -50,32 +71,18 @@ jobs:
           command: build
           args: --release --target "${{ matrix.item.target }}"
 
-      - name: Update the version in Cargo.toml
-        if: matrix.item.os == 'ubuntu-latest'
-        shell: bash
-        run: perl -i -pe "s/\"0.0.0\"/\"${{ steps.version.outputs.VERSION }}\"/" Cargo.toml
-
-      - name: Run cargo publish
-        if: matrix.item.os == 'ubuntu-latest'
-        uses: actions-rs/cargo@v1
-        env:
-           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        with:
-          command: publish
-          args: --no-verify --allow-dirty
-
       - name: Archive macOS and linux artifacts
         if: matrix.item.os == 'ubuntu-latest' || matrix.item.os == 'macOS-latest'
         shell: bash
         run: |
-          zip -9 "target/vdot-${{ steps.version.outputs.VERSION }}-${{ matrix.item.target }}.zip" \
+          zip -9 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip" \
             target/${{ matrix.item.target }}/release/vdot README.md LICENSE
 
       - name: Archive Windows artifacts
         if: matrix.item.os == 'windows-latest'
         shell: bash
         run: |
-          zip -9 "target/vdot-${{ steps.version.outputs.VERSION }}-${{ matrix.item.target }}.zip" \
+          zip -9 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip" \
             target/${{ matrix.item.target }}/release/vdot.exe README.md LICENSE
 
       - name: Upload artifacts to GitHub release
@@ -83,7 +90,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.release.outputs.RELEASE_UPLOAD_URL }}
-          asset_path: target/vdot-${{ steps.version.outputs.VERSION }}-${{ matrix.item.target }}.zip
-          asset_name: vdot-${{ steps.version.outputs.VERSION }}-${{ matrix.item.target }}.zip
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip
+          asset_name: vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip
           asset_content_type: application/zip
