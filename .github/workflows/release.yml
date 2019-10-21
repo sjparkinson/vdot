@@ -75,14 +75,14 @@ jobs:
         if: matrix.item.os == 'ubuntu-latest' || matrix.item.os == 'macOS-latest'
         shell: bash
         run: |
-          zip -9 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip" \
+          zip -9 -j "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip" \
             target/${{ matrix.item.target }}/release/vdot README.md LICENSE
 
       - name: Archive Windows artifacts
         if: matrix.item.os == 'windows-latest'
         shell: bash
         run: |
-          zip -9 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip" \
+          zip -9 -j "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip" \
             target/${{ matrix.item.target }}/release/vdot.exe README.md LICENSE
 
       - name: Upload artifacts to GitHub release
