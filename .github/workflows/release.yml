@@ -24,12 +24,13 @@ jobs:
 
       - name: Get the version
         id: version
+        shell: bash
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
 
       - name: Get the GitHub release upload URL
         id: release
-        run: |
-          echo ::set-output name=RELEASE_UPLOAD_URL::$(curl https://api.github.com/repos/${{ github.repository }}/releases/tags/${GITHUB_REF/refs\/tags\//} | jq -r '.upload_url')
+        shell: bash
+        run: echo ::set-output name=RELEASE_UPLOAD_URL::$(curl https://api.github.com/repos/${{ github.repository }}/releases/tags/${GITHUB_REF/refs\/tags\//} | jq -r '.upload_url')
 
       - name: Install apt packages
         if: matrix.item.os == 'ubuntu-latest'
