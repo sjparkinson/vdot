@@ -46,6 +46,7 @@ jobs:
 
       - name: Get the git tag
         id: tag
+        shell: bash
         run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
 
       - name: Get the GitHub release upload URL
@@ -64,7 +65,6 @@ jobs:
           toolchain: stable
           target: ${{ matrix.item.target }}
           profile: minimal
-          override: true
 
       - name: Run cargo build
         uses: actions-rs/cargo@v1

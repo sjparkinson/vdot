@@ -9,9 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      
-      - name: Install clippy
-        run: rustup component add clippy
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          components: clippy
 
       - name: Run cargo clippy
         uses: actions-rs/clippy-check@v1
