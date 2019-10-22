@@ -71,19 +71,24 @@ jobs:
           command: build
           args: --release --target "${{ matrix.item.target }}"
 
-      - name: Archive macOS and linux artifacts
+      - name: Compress macOS and linux artifacts
         if: matrix.item.os == 'ubuntu-latest' || matrix.item.os == 'macOS-latest'
         shell: bash
         run: |
-          zip -9 -j "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip" \
-            target/${{ matrix.item.target }}/release/vdot README.md LICENSE
+          cp target/${{ matrix.item.target }}/release/vdot .
+          zip -9 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip" vdot README.md LICENSE
 
-      - name: Archive Windows artifacts
+      - name: Compress Windows artifact
         if: matrix.item.os == 'windows-latest'
         shell: bash
         run: |
-          zip -9 -j "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip" \
-            target/${{ matrix.item.target }}/release/vdot.exe README.md LICENSE
+          cp target/${{ matrix.item.target }}/release/vdot.exe .
+          7z a "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip" vdot.exe README.md LICENSE
+
+      - name: Run sha256sum on the artifact
+        shell: bash
+        run: sha256sum "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip"
+        continue-on-error: true
 
       - name: Upload artifacts to GitHub release
         uses: actions/upload-release-asset@master
