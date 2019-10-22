@@ -135,7 +135,7 @@ pub fn run(args: Args) -> Result<(), Error> {
             return Err(VaultResponseError {
                 status: resp.status(),
                 path,
-            })?;
+            }.into());
         }
 
         let resp: serde_json::Value = resp.json()?;
