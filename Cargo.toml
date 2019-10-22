@@ -26,3 +26,4 @@ url = "1.7.2"
 
 [profile.release]
 lto = true
+panic = 'abort'
