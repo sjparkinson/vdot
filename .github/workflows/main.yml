@@ -31,6 +31,7 @@ jobs:
         with:
           toolchain: stable
           target: ${{ matrix.item.target }}
+          profile: minimal
           override: true
 
       - name: Run cargo check

@@ -63,6 +63,7 @@ jobs:
         with:
           toolchain: stable
           target: ${{ matrix.item.target }}
+          profile: minimal
           override: true
 
       - name: Run cargo build
@@ -85,9 +86,9 @@ jobs:
           cp target/${{ matrix.item.target }}/release/vdot.exe .
           7z a "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip" vdot.exe README.md LICENSE
 
-      - name: Run sha256sum on the artifact
+      - name: Calculate the sha256 of the artifact
         shell: bash
-        run: sha256sum "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip"
+        run: openssl dgst -sha256 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip"
         continue-on-error: true
 
       - name: Upload artifacts to GitHub release
