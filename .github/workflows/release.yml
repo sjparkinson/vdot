@@ -54,6 +54,10 @@ jobs:
         shell: bash
         run: echo ::set-output name=upload_url::$(curl https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.tag.outputs.tag }} | jq -r '.upload_url')
 
+      - name: Update the version in Cargo.toml
+        shell: bash
+        run: perl -i -pe "s/\"0.0.0\"/\"${{ steps.version.outputs.version }}\"/" Cargo.toml
+
       - name: Install apt packages
         if: matrix.item.os == 'ubuntu-latest'
         shell: bash
@@ -89,7 +93,6 @@ jobs:
       - name: Calculate the sha256 of the artifact
         shell: bash
         run: openssl dgst -sha256 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip"
-        continue-on-error: true
 
       - name: Upload artifacts to GitHub release
         uses: actions/upload-release-asset@master
