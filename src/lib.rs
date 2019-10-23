@@ -7,7 +7,6 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufWriter;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 use structopt::StructOpt;
 use url::Url;
 
@@ -46,14 +45,6 @@ pub struct Args {
     )]
     pub output: PathBuf,
 
-    /// Command to spawn
-    ///
-    /// This option will spawn the given command with the environment variables downloaded from Vault.
-    ///
-    /// e.g. `vdot -c 'npm start' secret/foo`
-    #[structopt(short = "c", long = "command", conflicts_with = "output")]
-    pub command: Option<String>,
-
     /// Vault token used to authenticate requests
     ///
     /// This can also be provided by setting the VAULT_TOKEN environment variable.
@@ -90,7 +81,6 @@ pub struct Args {
 /// let args = Args {
 ///     paths: vec![],
 ///     output: PathBuf::from(".env"),
-///     command: None,
 ///     vault_token: "hunter2".to_string(),
 ///     vault_address: url::Url::parse("http://127.0.0.1:8200").unwrap(),
 ///     verbose: 0
@@ -166,25 +156,7 @@ pub fn run(args: Args) -> Result<(), Error> {
         }
     }
 
-    if let Some(command) = args.command {
-        return start_process(command, vars);
-    }
-
     save_dotenv(args.output, vars)
-}
-
-fn start_process(process: String, vars: HashMap<String, String>) -> Result<(), Error> {
-    let mut command = process.split_whitespace();
-
-    info!("running `{}`", process);
-
-    // The first part is the process to start.
-    Command::new(command.next().unwrap())
-        .args(command)
-        .envs(vars)
-        .status()?;
-
-    Ok(())
 }
 
 fn save_dotenv(path: PathBuf, vars: HashMap<String, String>) -> Result<(), Error> {
