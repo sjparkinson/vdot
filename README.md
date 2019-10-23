@@ -1,6 +1,8 @@
 # vdot
 
-Create your `.env` files and start processes using HashiCorp Vault.
+Create your `.env` files using HashiCorp Vault.
+
+> 🔮 **Want to start a process with Vault?** Consider using [HashiCorp's `envconsul`](https://github.com/hashicorp/envconsul).
 
 ## Installation
 
@@ -39,7 +41,6 @@ FLAGS:
     -v, --verbose    Verbose mode
 
 OPTIONS:
-    -c, --command <command>                Command to spawn
     -o, --output <output>                  Write to the given file [default: .env]
         --vault-address <vault_address>    Vault server address [env: VAULT_ADDR]
         --vault-token <vault_token>        Vault token used to authenticate requests [env: VAULT_TOKEN]
