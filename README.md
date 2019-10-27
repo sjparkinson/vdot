@@ -41,12 +41,13 @@ FLAGS:
     -v, --verbose    Verbose mode
 
 OPTIONS:
-    -o, --output <output>                  Write to the given file [default: .env]
-        --vault-address <vault_address>    Vault server address [env: VAULT_ADDR]
-        --vault-token <vault_token>        Vault token used to authenticate requests [env: VAULT_TOKEN]
+    -o, --output <path>              Write to the given file [default: .env]
+        --kv <version>               Version of the key value secrets engine [default: 2]  [possible values: 1, 2]
+        --vault-token <token>        Vault token used to authenticate requests [env: VAULT_TOKEN]
+        --vault-address <address>    Vault server address [env: VAULT_ADDR=http://127.0.0.1:8200]
 
 ARGS:
-    <PATH>...    Path to the Vault secrets
+    <path>...    Path to the Vault secrets
 ```
 
 The following assumes you are [using **version two** of Vault's key-value secret engine](https://www.vaultproject.io/docs/secrets/kv/index.html). Check out `vdot --help` for more information.
@@ -54,7 +55,7 @@ The following assumes you are [using **version two** of Vault's key-value secret
 ```bash
 $ vault kv put secret/foo-bar ENV=production LOG_LEVEL=info
 $ vault kv put secret/fizz-buzz LOG_LEVEL=debug
-$ vdot --vault-token "$(cat ~/.vault-token)" secret/data/foo-bar secret/data/fizz-buzz
+$ vdot --vault-token "$(cat ~/.vault-token)" secret/foo-bar secret/fizz-buzz
 info: saved 2 environment variables to .env
 $ cat .env
 ENV=production

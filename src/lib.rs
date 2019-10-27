@@ -1,5 +1,7 @@
 //! This is documentation for the `vdot` crate.
 
+// #![deny(missing_docs)]
+
 use failure::{Error, Fail};
 use log::{debug, info, warn};
 use std::collections::HashMap;
@@ -26,8 +28,6 @@ pub struct Args {
     ///
     /// If duplicate keys are found when providing more than one path the value from the first path will be saved.
     ///
-    /// Use something like `secret/foo-bar` for v1 of the Vault key-value secrets engine, and `secret/data/foo-bar` for v2.
-    ///
     /// e.g. `vdot secret/foo secret/bar`
     ///
     /// See https://www.vaultproject.io/docs/secrets/kv/index.html for more information.
@@ -41,9 +41,25 @@ pub struct Args {
         short = "o",
         long = "output",
         default_value = ".env",
-        parse(from_os_str)
+        value_name = "path",
+        parse(from_os_str),
+        display_order = 1
     )]
     pub output: PathBuf,
+
+    /// Version of the key value secrets engine
+    ///
+    /// e.g. `vdot --kv 1 secret/foo`
+    /// 
+    /// See https://www.vaultproject.io/docs/secrets/kv/index.html for more information.
+    #[structopt(
+        long = "kv",
+        possible_values = &["1", "2"],
+        value_name = "version",
+        default_value = "2",
+        display_order = 2
+    )]
+    pub vault_kv_version: u8,
 
     /// Vault token used to authenticate requests
     ///
@@ -52,7 +68,13 @@ pub struct Args {
     /// e.g. `vdot --vault-token $(cat ~/.vault-token) secret/foo`
     ///
     /// See https://www.vaultproject.io/docs/concepts/auth.html#tokens for more information.
-    #[structopt(long = "vault-token", env = "VAULT_TOKEN", hide_env_values = true)]
+    #[structopt(
+        long = "vault-token",
+        env = "VAULT_TOKEN",
+        value_name = "token",
+        hide_env_values = true,
+        display_order = 3
+    )]
     pub vault_token: String,
 
     /// Vault server address
@@ -60,7 +82,12 @@ pub struct Args {
     /// This can also be provided by setting the VAULT_ADDR environment variable.
     ///
     /// e.g. `vdot --vault-address http://127.0.0.1:8200 secret/foo`
-    #[structopt(long = "vault-address", env = "VAULT_ADDR", hide_env_values = true)]
+    #[structopt(
+        long = "vault-address",
+        env = "VAULT_ADDR",
+        value_name = "address",
+        display_order = 4
+    )]
     pub vault_address: Url,
 
     /// Verbose mode
