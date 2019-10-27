@@ -8,7 +8,7 @@ use std::io::prelude::*;
 use std::io::BufWriter;
 use std::path::{Path, PathBuf};
 use structopt::StructOpt;
-use url::Url;
+use reqwest::Url;
 
 pub mod logger;
 
@@ -20,7 +20,7 @@ pub struct VaultResponseError {
 }
 
 #[derive(StructOpt, Debug)]
-#[structopt(author = "", about = "", usage = "vdot [FLAGS] [OPTIONS] <PATH>...")]
+#[structopt(usage = "vdot [FLAGS] [OPTIONS] <PATH>...")]
 pub struct Args {
     /// Path to the Vault secrets
     ///
@@ -31,7 +31,7 @@ pub struct Args {
     /// e.g. `vdot secret/foo secret/bar`
     ///
     /// See https://www.vaultproject.io/docs/secrets/kv/index.html for more information.
-    #[structopt(name = "PATH", raw(required = "true"))]
+    #[structopt(name = "PATH", required = true)]
     pub paths: Vec<String>,
 
     /// Write to the given file
