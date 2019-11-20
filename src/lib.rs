@@ -90,9 +90,9 @@ pub struct Args {
     )]
     pub vault_address: Url,
 
-    /// Verbose mode
-    #[structopt(short = "v", long = "verbose", parse(from_occurrences))]
-    pub verbose: u8,
+    /// Prints more verbose output
+    #[structopt(short = "v", long = "verbose")]
+    pub verbose: bool,
 }
 
 /// Use the given command line arguments to run vdot.
@@ -112,7 +112,7 @@ pub struct Args {
 ///     vault_token: "hunter2".to_string(),
 ///     vault_address: Url::parse("http://127.0.0.1:8200").unwrap(),
 ///     vault_kv_version: 2,
-///     verbose: 0
+///     verbose: false
 /// };
 ///
 /// if let Err(err) = vdot::run(args) {

@@ -32,7 +32,7 @@ jobs:
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install apt packages
-        if: matrix.item.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: sudo apt install musl-tools
 
@@ -60,14 +60,14 @@ jobs:
           args: --target "${{ matrix.target }}"
 
       - name: Upload macOS and linux artifacts
-        if: matrix.item.os == 'ubuntu-latest' || matrix.item.os == 'macOS-latest'
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
         uses: actions/upload-artifact@master
         with:
           name: vdot-${{ matrix.target }}
           path: target/${{ matrix.target }}/debug/vdot
 
       - name: Upload Windows artifacts
-        if: matrix.item.os == 'windows-latest'
+        if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@master
         with:
           name: vdot-${{ matrix.target }}

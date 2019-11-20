@@ -69,7 +69,7 @@ jobs:
         run: perl -i -pe "s/\"0.0.0\"/\"${GITHUB_REF/refs\/tags\/v/}\"/" Cargo.toml
 
       - name: Install apt packages
-        if: matrix.item.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: sudo apt install musl-tools
 
@@ -89,14 +89,14 @@ jobs:
           PKG_CONFIG_ALLOW_CROSS: 1
 
       - name: Compress macOS and linux artifacts
-        if: matrix.item.os == 'ubuntu-latest' || matrix.item.os == 'macOS-latest'
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
         shell: bash
         run: |
           cp target/${{ matrix.target }}/release/vdot .
           zip -9 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.target }}.zip" vdot README.md LICENSE
 
       - name: Compress Windows artifact
-        if: matrix.item.os == 'windows-latest'
+        if: matrix.os == 'windows-latest'
         shell: bash
         run: |
           cp target/${{ matrix.target }}/release/vdot.exe .

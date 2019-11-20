@@ -7,15 +7,12 @@ fn main() {
     // Parse the command line inputs into an instance of `Args`.
     let args = Args::from_args();
 
-    // Convert the u8 into a `Level`.
-    let log_level = match args.verbose {
-        0 => Level::Info,
-        1 => Level::Debug,
-        _ => Level::Trace,
-    };
-
     // Setup logging to stdout and stderr.
-    logger::init(log_level);
+    if args.verbose {
+        logger::init(Level::Debug)
+    } else {
+        logger::init(Level::Info)
+    }
 
     // Run vdot!
     if let Err(err) = vdot::run(args) {
