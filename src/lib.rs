@@ -4,13 +4,13 @@
 
 use failure::{Error, Fail};
 use log::{debug, info, warn};
+use reqwest::Url;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufWriter;
 use std::path::{Path, PathBuf};
 use structopt::StructOpt;
-use reqwest::Url;
 
 pub mod logger;
 
@@ -50,7 +50,7 @@ pub struct Args {
     /// Version of the key value secrets engine
     ///
     /// e.g. `vdot --kv 1 secret/foo`
-    /// 
+    ///
     /// See https://www.vaultproject.io/docs/secrets/kv/index.html for more information.
     #[structopt(
         long = "kv",
@@ -104,12 +104,14 @@ pub struct Args {
 /// use std::path::PathBuf;
 /// use std::process;
 /// use vdot::Args;
+/// use reqwest::Url;
 ///
 /// let args = Args {
 ///     paths: vec![],
 ///     output: PathBuf::from(".env"),
 ///     vault_token: "hunter2".to_string(),
-///     vault_address: url::Url::parse("http://127.0.0.1:8200").unwrap(),
+///     vault_address: Url::parse("http://127.0.0.1:8200").unwrap(),
+///     vault_kv_version: 2,
 ///     verbose: 0
 /// };
 ///

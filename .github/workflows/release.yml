@@ -31,7 +31,11 @@ jobs:
   github-release:
     strategy:
       matrix:
-        item:
+        os:
+          - macOS-latest
+          - ubuntu-latest
+          - windows-latest
+        include:
           - os: macOS-latest
             target: x86_64-apple-darwin
           - os: ubuntu-latest
@@ -39,7 +43,7 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
 
-    runs-on: ${{ matrix.item.os }}
+    runs-on: "${{ matrix.os }}"
 
     steps:
       - uses: actions/checkout@v1
@@ -73,32 +77,34 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: ${{ matrix.item.target }}
+          target: ${{ matrix.target }}
           profile: minimal
 
       - name: Run cargo build
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --target "${{ matrix.item.target }}"
+          args: --release --target "${{ matrix.target }}"
+        env:
+          PKG_CONFIG_ALLOW_CROSS: 1
 
       - name: Compress macOS and linux artifacts
         if: matrix.item.os == 'ubuntu-latest' || matrix.item.os == 'macOS-latest'
         shell: bash
         run: |
-          cp target/${{ matrix.item.target }}/release/vdot .
-          zip -9 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip" vdot README.md LICENSE
+          cp target/${{ matrix.target }}/release/vdot .
+          zip -9 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.target }}.zip" vdot README.md LICENSE
 
       - name: Compress Windows artifact
         if: matrix.item.os == 'windows-latest'
         shell: bash
         run: |
-          cp target/${{ matrix.item.target }}/release/vdot.exe .
-          7z a "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip" vdot.exe README.md LICENSE
+          cp target/${{ matrix.target }}/release/vdot.exe .
+          7z a "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.target }}.zip" vdot.exe README.md LICENSE
 
       - name: Calculate the sha256 of the artifact
         shell: bash
-        run: openssl dgst -sha256 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip"
+        run: openssl dgst -sha256 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.target }}.zip"
 
       - name: Upload artifacts to GitHub release
         uses: actions/upload-release-asset@master
@@ -106,6 +112,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.release.outputs.upload_url }}
-          asset_path: target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip
-          asset_name: vdot-${{ steps.tag.outputs.tag }}-${{ matrix.item.target }}.zip
+          asset_path: target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.target }}.zip
+          asset_name: vdot-${{ steps.tag.outputs.tag }}-${{ matrix.target }}.zip
           asset_content_type: application/zip

@@ -2,7 +2,7 @@ name: Rustfmt
 
 on:
   push:
-    branches: '**'
+    branches: [ '**' ]
 
 jobs:
   fmt:

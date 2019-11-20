@@ -2,13 +2,17 @@ name: Build
 
 on:
   push:
-    branches: '**'
+    branches: [ '**' ]
 
 jobs:
   build:
     strategy:
       matrix:
-        item:
+        os:
+          - macOS-latest
+          - ubuntu-latest
+          - windows-latest
+        include:
           - os: macOS-latest
             target: x86_64-apple-darwin
           - os: ubuntu-latest
@@ -16,7 +20,7 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
 
-    runs-on: ${{ matrix.item.os }}
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v1
@@ -36,7 +40,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          target: ${{ matrix.item.target }}
+          target: ${{ matrix.target }}
           profile: minimal
 
       - name: Run cargo check
@@ -53,18 +57,18 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --target "${{ matrix.item.target }}"
+          args: --target "${{ matrix.target }}"
 
       - name: Upload macOS and linux artifacts
         if: matrix.item.os == 'ubuntu-latest' || matrix.item.os == 'macOS-latest'
         uses: actions/upload-artifact@master
         with:
-          name: vdot-${{ matrix.item.target }}
-          path: target/${{ matrix.item.target }}/debug/vdot
+          name: vdot-${{ matrix.target }}
+          path: target/${{ matrix.target }}/debug/vdot
 
       - name: Upload Windows artifacts
         if: matrix.item.os == 'windows-latest'
         uses: actions/upload-artifact@master
         with:
-          name: vdot-${{ matrix.item.target }}
-          path: target/${{ matrix.item.target }}/debug/vdot.exe
+          name: vdot-${{ matrix.target }}
+          path: target/${{ matrix.target }}/debug/vdot.exe
