@@ -3,13 +3,13 @@ name: Release
 on:
   release:
     types:
-      - created
+      - published
 
 jobs:
   cargo-publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
       - name: Get the version
         id: version
@@ -46,9 +46,21 @@ jobs:
     runs-on: "${{ matrix.os }}"
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
-      - name: Cache cargo build
+      - name: Cache Cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache Cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache Cargo build
         uses: actions/cache@v1
         with:
           path: target
@@ -58,11 +70,6 @@ jobs:
         id: tag
         shell: bash
         run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
-
-      - name: Get the GitHub release upload URL
-        id: release
-        shell: bash
-        run: echo ::set-output name=upload_url::$(curl https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.tag.outputs.tag }} | jq -r '.upload_url')
 
       - name: Update the version in Cargo.toml
         shell: bash
@@ -107,11 +114,11 @@ jobs:
         run: openssl dgst -sha256 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.target }}.zip"
 
       - name: Upload artifacts to GitHub release
-        uses: actions/upload-release-asset@master
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.release.outputs.upload_url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.target }}.zip
           asset_name: vdot-${{ steps.tag.outputs.tag }}-${{ matrix.target }}.zip
           asset_content_type: application/zip

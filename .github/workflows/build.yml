@@ -23,9 +23,21 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
-      - name: Cache cargo build
+      - name: Cache Cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache Cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache Cargo build
         uses: actions/cache@v1
         with:
           path: target
@@ -61,14 +73,14 @@ jobs:
 
       - name: Upload macOS and linux artifacts
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v2
         with:
           name: vdot-${{ matrix.target }}
           path: target/${{ matrix.target }}/debug/vdot
 
       - name: Upload Windows artifacts
         if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v2
         with:
           name: vdot-${{ matrix.target }}
           path: target/${{ matrix.target }}/debug/vdot.exe
