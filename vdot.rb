@@ -12,14 +12,14 @@
 class Vdot < Formula
   desc "Create your .env files and start processes using Vault"
   homepage "https://github.com/sjparkinson/vdot"
-  version "0.4.6"
+  version "0.4.7"
 
   if OS.mac?
     url "https://github.com/sjparkinson/vdot/releases/download/v#{version}/vdot-v#{version}-x86_64-apple-darwin.zip"
-    sha256 " d2e8386f038b8518da6b1df584580d6483c9e83ab736b7dd86c8d0a9b161cc8c"
+    sha256 "30d433d16a7a5a095f23a0d8d5b851449e00339b1594088b26192a1d44a4e92b"
   elsif OS.linux?
     url "https://github.com/sjparkinson/vdot/releases/download/v#{version}/vdot-v#{version}-x86_64-unknown-linux-musl.zip"
-    sha256 " 99ab6aebb3563f1660d6f6ca260b4b0c99dd303048e073b21ae904d13e634fc2"
+    sha256 "e831e17605c3679fc5d3ebe80d87e7de04ef2c97c0f9bfe7c555a73f3febbed9"
   end
 
   def install
