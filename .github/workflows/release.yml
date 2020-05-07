@@ -68,8 +68,6 @@ jobs:
 
       - run: rustup toolchain install stable --target "${{ matrix.target }}"
 
-      - run: rustup target add "${{ matrix.target }}"
-
       - run: cargo build --release
 
       - name: Compress macOS and linux artifacts
