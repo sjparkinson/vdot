@@ -143,7 +143,7 @@ jobs:
           ref: master
 
       - name: Update the formula version
-        run: perl -i -pe "s/version \".+\"/version \"${GITHUB_REF/refs\/tags\/v/}\"/" vdot.rb
+        run: perl -i -pe "s/version \".+\"/version \"${GITHUB_REF/refs\/tags\/v/}\"/ if $.==4" vdot.rb
 
       - name: Update the macOS hash
         run: perl -i -pe "s/sha256 \".+\"/sha256 \"${{ needs.github.outputs.sha256_macos }}\"/ if $.==19" vdot.rb
