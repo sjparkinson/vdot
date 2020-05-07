@@ -2,11 +2,16 @@ name: Build
 
 on:
   push:
-    branches: [ '**' ]
+    branches: ["**"]
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   clippy:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
 
@@ -14,35 +19,27 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo build
         uses: actions/cache@v1
         with:
           path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          components: clippy
+      - run: rustup toolchain install stable --component clippy
 
-      - name: Run cargo clippy
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
-          
+      - run: cargo clippy
+
   fmt:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
 
@@ -50,32 +47,23 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo build
         uses: actions/cache@v1
         with:
           path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          components: rustfmt
+      - run: rustup toolchain install stable --component rustfmt
 
-      - name: Run cargo fmt
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+      - run: cargo fmt --all -- --check
 
   build:
     strategy:
@@ -92,6 +80,9 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
 
+    env:
+      CARGO_BUILD_TARGET: ${{ matrix.target }}
+
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -101,47 +92,33 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo build
         uses: actions/cache@v1
         with:
           path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install apt packages
         if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: sudo apt install musl-tools
 
-      - name: Install rust stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: ${{ matrix.target }}
-          profile: minimal
+      - run: rustup toolchain install stable --target "${{ matrix.target }}"
 
-      - name: Run cargo check
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
+      - name: Update the version in Cargo.toml
+        run: perl -i -pe "s/\"([^ ]*)\"/\"\1-master+${GITHUB_SHA:0:7}\"/ if $.==4" Cargo.toml
 
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+      - run: cargo test
 
-      - name: Run cargo build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --target "${{ matrix.target }}"
+      - run: cargo build
 
       - name: Upload macOS and linux artifacts
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest'
