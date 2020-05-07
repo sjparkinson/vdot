@@ -19,19 +19,19 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
-          key: ${{ matrix.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-registry-debug-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
-          key: ${{ matrix.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-index-debug-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo build
         uses: actions/cache@v1
         with:
           path: target
-          key: ${{ matrix.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-build-target-debug-${{ hashFiles('**/Cargo.lock') }}
 
       - run: rustup toolchain install stable --component clippy
 
@@ -47,19 +47,19 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
-          key: ${{ matrix.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-registry-debug-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
-          key: ${{ matrix.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-index-debug-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo build
         uses: actions/cache@v1
         with:
           path: target
-          key: ${{ matrix.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-build-target-debug-${{ hashFiles('**/Cargo.lock') }}
 
       - run: rustup toolchain install stable --component rustfmt
 
@@ -92,19 +92,19 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
-          key: ${{ matrix.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-registry-debug-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
-          key: ${{ matrix.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-index-debug-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo build
         uses: actions/cache@v1
         with:
           path: target
-          key: ${{ matrix.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-build-target-debug-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install apt packages
         if: matrix.os == 'ubuntu-latest'
