@@ -121,16 +121,16 @@ jobs:
       - name: Update the version in Cargo.toml
         run: perl -i -pe "s/version = \".+\"/version = \"${GITHUB_REF/refs\/tags\/v/}\"/ if $.==4" Cargo.toml
 
+      - run: cargo publish --no-verify --allow-dirty
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
       - name: Commit the changes
         run: |
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "GitHub Actions"
-          git commit -am "chore: update crate version to ${GITHUB_REF/refs\/tags\//}"
+          git commit -am "chore: update Cargo crate to ${GITHUB_REF/refs\/tags\//}"
           git push
-
-      - run: cargo publish --no-verify
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
   homebrew:
     runs-on: ubuntu-latest
@@ -155,5 +155,5 @@ jobs:
         run: |
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "GitHub Actions"
-          git commit -am "chore: update crate version to ${GITHUB_REF/refs\/tags\//}"
+          git commit -am "chore: update Homebrew formula to ${GITHUB_REF/refs\/tags\//}"
           git push
