@@ -60,7 +60,7 @@ jobs:
         run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
 
       - name: Update the version in Cargo.toml
-        run: perl -i -pe "s/\"0.0.0\"/\"${GITHUB_REF/refs\/tags\/v/}\"/" Cargo.toml
+        run: perl -i -pe "s/version = \".+\"/version = \"${GITHUB_REF/refs\/tags\/v/}\"/ if $.==4" Cargo.toml
 
       - name: Install apt packages
         if: matrix.os == 'ubuntu-latest'
