@@ -114,7 +114,7 @@ jobs:
       - run: rustup toolchain install stable --target "${{ matrix.target }}"
 
       - name: Update the version in Cargo.toml
-        run: perl -i -pe "s/\"([^ ]*)\"/\"\1-master+${GITHUB_SHA:0:7}\"/ if $.==4" Cargo.toml
+        run: perl -i -pe "s/\"([^ ]*)\"/\"\1-main+${GITHUB_SHA:0:7}\"/ if $.==4" Cargo.toml
 
       - run: cargo test
 
