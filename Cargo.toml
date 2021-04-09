@@ -10,9 +10,6 @@ license = "MIT"
 categories = ["command-line-utilities", "config"]
 keywords = ["cli", "env", "dotenv", "config"]
 
-[badges]
-travis-ci = { repository = "sjparkinson/vdot", branch = "main" }
-
 [dependencies]
 failure = "0.1.6"
 fern = { version = "0.5.9", features = ["colored"] }
