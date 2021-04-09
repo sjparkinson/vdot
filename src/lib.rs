@@ -125,8 +125,8 @@ pub struct Args {
 ///
 /// Returns an error if anything goes wrong, and exits the process with a status code of 1.
 pub fn run(args: Args) -> Result<(), Error> {
-    // Create a new http client to make use of connection pooling.
-    let http = reqwest::Client::new();
+    // Create a new blocking http client to make use of connection pooling.
+    let http = reqwest::blocking::Client::new();
 
     // Key-value store for the environment variable downloaded from Vault.
     let mut vars: HashMap<String, String> = HashMap::new();
@@ -148,7 +148,7 @@ pub fn run(args: Args) -> Result<(), Error> {
             format!("Bearer {}", args.vault_token),
         );
 
-        let mut resp = req.send()?;
+        let resp = req.send()?;
 
         if !resp.status().is_success() {
             return Err(VaultResponseError {
