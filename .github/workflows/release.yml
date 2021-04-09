@@ -92,7 +92,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: master
+          ref: main
 
       - name: Update the version in Cargo.toml
         run: perl -i -pe "s/version = \".+\"/version = \"${GITHUB_REF/refs\/tags\/v/}\"/ if $.==4" Cargo.toml
@@ -116,7 +116,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: master
+          ref: main
 
       - name: Update the formula version
         run: perl -i -pe "s/version \".+\"/version \"${GITHUB_REF/refs\/tags\/v/}\"/ if $.==15" vdot.rb
