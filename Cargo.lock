@@ -951,7 +951,7 @@ dependencies = [
 
 [[package]]
 name = "vdot"
-version = "0.4.8"
+version = "0.4.10"
 dependencies = [
  "failure",
  "fern",
