@@ -16,19 +16,19 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Cache Cargo registry
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.4
         with:
           path: ~/.cargo/registry
           key: ${{ matrix.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo index
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.4
         with:
           path: ~/.cargo/git
           key: ${{ matrix.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo build
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.4
         with:
           path: target
           key: ${{ matrix.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
@@ -44,19 +44,19 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Cache Cargo registry
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.4
         with:
           path: ~/.cargo/registry
           key: ${{ matrix.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo index
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.4
         with:
           path: ~/.cargo/git
           key: ${{ matrix.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo build
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.4
         with:
           path: target
           key: ${{ matrix.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
@@ -89,19 +89,19 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Cache Cargo registry
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.4
         with:
           path: ~/.cargo/registry
           key: ${{ matrix.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo index
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.4
         with:
           path: ~/.cargo/git
           key: ${{ matrix.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache Cargo build
-        uses: actions/cache@v1
+        uses: actions/cache@v2.1.4
         with:
           path: target
           key: ${{ matrix.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
