@@ -12,7 +12,7 @@ keywords = ["cli", "env", "dotenv", "config"]
 
 [dependencies]
 failure = "0.1.6"
-fern = { version = "0.5.9", features = ["colored"] }
+fern = { version = "0.6.0", features = ["colored"] }
 log = "0.4.8"
 reqwest = { version = "0.9.22", features = ["rustls-tls"], default-features = false }
 serde = { version = "1.0.102", features = ["derive"] }
