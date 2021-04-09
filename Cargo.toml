@@ -2,7 +2,7 @@
 name = "vdot"
 description = "Create your .env files using HashiCorp Vault."
 version = "0.4.8"
-authors = ["Samuel Parkinson <sam.james.parkinson@gmail.com>"]
+authors = ["Samuel Parkinson <samuel.parkinson@hey.com>"]
 edition = "2018"
 repository = "https://github.com/sjparkinson/vdot"
 readme = "README.md"
