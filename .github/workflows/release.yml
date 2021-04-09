@@ -103,8 +103,8 @@ jobs:
 
       - name: Commit the changes
         run: |
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git config --global user.name "GitHub Actions"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
           git commit -am "chore: update Cargo crate to ${GITHUB_REF/refs\/tags\//}"
           git push
 
