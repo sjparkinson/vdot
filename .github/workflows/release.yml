@@ -11,6 +11,7 @@ defaults:
 
 jobs:
   github:
+    name: GitHub
     strategy:
       matrix:
         os:
@@ -87,8 +88,8 @@ jobs:
           asset_content_type: application/zip
 
   cargo:
+    name: Cargo
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
         with:
@@ -109,10 +110,9 @@ jobs:
           git push
 
   homebrew:
+    name: Homebrew
     runs-on: ubuntu-latest
-
     needs: github
-
     steps:
       - uses: actions/checkout@v2
         with:
