@@ -8,8 +8,8 @@ defaults:
 
 jobs:
   clippy:
+    name: Clippy
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       
@@ -25,9 +25,9 @@ jobs:
 
       - run: cargo clippy
 
-  fmt:
+  rustfmt:
+    name: Rustfmt
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
 
@@ -44,6 +44,7 @@ jobs:
       - run: cargo fmt --all -- --check
 
   build:
+    name: Build
     strategy:
       matrix:
         os:
@@ -57,12 +58,9 @@ jobs:
             target: x86_64-unknown-linux-musl
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-
     env:
       CARGO_BUILD_TARGET: ${{ matrix.target }}
-
     runs-on: ${{ matrix.os }}
-
     steps:
       - uses: actions/checkout@v2
       
