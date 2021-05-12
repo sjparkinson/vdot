@@ -78,7 +78,7 @@ jobs:
           echo ::set-output name=sha256::$(openssl dgst -sha256 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.target }}.zip" | cut -d ' ' -f 2)
 
       - name: Upload artifacts to GitHub release
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
