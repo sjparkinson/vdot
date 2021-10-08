@@ -12,18 +12,20 @@
 class Vdot < Formula
   desc "Create your .env files and start processes using Vault"
   homepage "https://github.com/sjparkinson/vdot"
-  version "0.4.10"
+  url "https://github.com/sjparkinson/vdot/archive/refs/tags/v0.4.10.tar.gz"
+  sha256 "0fb17aaf285b3eee8ddab17b833af1e190d73de317ff9648751ab0660d763ed2"
 
-  if OS.mac?
-    url "https://github.com/sjparkinson/vdot/releases/download/v#{version}/vdot-v#{version}-x86_64-apple-darwin.zip"
-    sha256 "0afff36dd470ed7101ba6a97f875f827877b8da8d0e047555887898081d936ee"
-  elsif OS.linux?
-    url "https://github.com/sjparkinson/vdot/releases/download/v#{version}/vdot-v#{version}-x86_64-unknown-linux-musl.zip"
-    sha256 "98e946d957af3c59d642d57f4500e74ff4099ed11e6364ce9592dd941d45ac45"
+  head "https://github.com/sjparkinson/vdot.git", branch: "main"
+
+  livecheck do
+    url :stable
+    strategy :github_latest
   end
 
+  depends_on "rust" => :build
+
   def install
-    bin.install "vdot"
+    system "cargo", "install", *std_cargo_args
   end
 
   test do

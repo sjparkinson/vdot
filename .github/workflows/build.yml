@@ -13,11 +13,11 @@ jobs:
     name: Homebrew
     runs-on: macOS-latest
     steps:
-      - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
+      - uses: actions/checkout@v2.3.4
 
-      - name: Check formulae
-        run: brew test-bot --only-tap-syntax vdot.rb
+      - uses: Homebrew/actions/setup-homebrew@master
+
+      - run: brew audit --strict --online ./vdot.rb
 
   clippy:
     name: Clippy
