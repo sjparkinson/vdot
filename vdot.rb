@@ -1,3 +1,6 @@
+# typed: false
+# frozen_string_literal: true
+
 # This is a Homebrew formula for vdot.
 #
 # You can install vdot with `brew` by running:
@@ -8,7 +11,6 @@
 # ```
 #
 # See https://docs.brew.sh/Taps for more information.
-
 class Vdot < Formula
   desc "Create your .env files and start processes using Vault"
   homepage "https://github.com/sjparkinson/vdot"
