@@ -15,7 +15,7 @@ class Vdot < Formula
   desc "Create your .env files and start processes using Vault"
   homepage "https://github.com/sjparkinson/vdot"
   url "https://github.com/sjparkinson/vdot/archive/refs/tags/v0.4.10.tar.gz"
-  sha256 "0fb17aaf285b3eee8ddab17b833af1e190d73de317ff9648751ab0660d763ed2"
+  sha256 "358581663a301699193c92afca4c16a828879cac09fa42a5a582a19271ab9206"
 
   head "https://github.com/sjparkinson/vdot.git", branch: "main"
 

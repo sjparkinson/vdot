@@ -17,7 +17,11 @@ jobs:
 
       - uses: Homebrew/actions/setup-homebrew@master
 
-      - run: brew audit --strict --online ./vdot.rb
+      - run: brew install --build-from-source --formula vdot.rb
+
+      - run: brew test vdot.rb
+
+      - run: brew audit --strict --online vdot.rb
 
   clippy:
     name: Clippy
