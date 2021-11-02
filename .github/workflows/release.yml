@@ -36,7 +36,7 @@ jobs:
       sha256_linux: ${{ steps.sha256_linux.outputs.sha256 }}
 
     steps:
-      - uses: actions/checkout@v2.3.5
+      - uses: actions/checkout@v2.4.0
 
       - name: Get the git tag
         id: tag
@@ -91,7 +91,7 @@ jobs:
     name: Cargo
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.5
+      - uses: actions/checkout@v2.4.0
         with:
           ref: main
 
@@ -114,7 +114,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: github
     steps:
-      - uses: actions/checkout@v2.3.5
+      - uses: actions/checkout@v2.4.0
         with:
           ref: main
 
