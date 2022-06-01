@@ -88,14 +88,14 @@ jobs:
 
       - name: Upload macOS and linux artifacts
         if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'macOS-latest' }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: vdot-${{ matrix.target }}
           path: target/${{ matrix.target }}/debug/vdot
 
       - name: Upload Windows artifacts
         if: ${{ matrix.os == 'windows-latest' }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: vdot-${{ matrix.target }}
           path: target/${{ matrix.target }}/debug/vdot.exe
