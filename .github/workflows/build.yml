@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - uses: actions/cache@v3.0.3
+      - uses: actions/cache@v3.0.4
         with:
           path: |
             ~/.cargo/registry
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/cache@v3.0.3
+      - uses: actions/cache@v3.0.4
         with:
           path: |
             ~/.cargo/registry
@@ -64,7 +64,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - uses: actions/cache@v3.0.3
+      - uses: actions/cache@v3.0.4
         with:
           path: |
             ~/.cargo/registry
