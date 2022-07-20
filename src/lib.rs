@@ -2,7 +2,7 @@
 
 // #![deny(missing_docs)]
 
-use failure::{Error, Fail};
+use anyhow::{anyhow, Error, Result};
 use log::{debug, info, warn};
 use reqwest::Url;
 use std::collections::HashMap;
@@ -13,13 +13,6 @@ use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 
 pub mod logger;
-
-#[derive(Fail, Debug)]
-#[fail(display = "Vault responded with {} for the '{}' path", status, path)]
-pub struct VaultResponseError {
-    status: reqwest::StatusCode,
-    path: String,
-}
 
 #[derive(StructOpt, Debug)]
 #[structopt(usage = "vdot [FLAGS] [OPTIONS] <PATH>...")]
@@ -124,7 +117,7 @@ pub struct Args {
 /// # Errors
 ///
 /// Returns an error if anything goes wrong, and exits the process with a status code of 1.
-pub fn run(args: Args) -> Result<(), Error> {
+pub fn run(args: Args) -> Result<()> {
     // Create a new blocking http client to make use of connection pooling.
     let http = reqwest::blocking::Client::new();
 
@@ -151,11 +144,11 @@ pub fn run(args: Args) -> Result<(), Error> {
         let resp = req.send()?;
 
         if !resp.status().is_success() {
-            return Err(VaultResponseError {
-                status: resp.status(),
-                path,
-            }
-            .into());
+            return Err(anyhow!(
+                "Vault responded with {} for the '{}' path",
+                resp.status(),
+                path
+            ));
         }
 
         let resp: serde_json::Value = resp.json()?;
