@@ -87,30 +87,8 @@ jobs:
           asset_name: vdot-${{ steps.tag.outputs.tag }}-${{ matrix.target }}.zip
           asset_content_type: application/zip
 
-  cargo:
-    name: Cargo
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: main
-
-      - name: Update the version in Cargo.toml
-        run: perl -i -pe "s/version = \".+\"/version = \"${GITHUB_REF/refs\/tags\/v/}\"/ if $.==4" Cargo.toml
-
-      - run: cargo publish --no-verify --allow-dirty
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-
-      - name: Commit the changes
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git commit -am "chore: update Cargo crate to ${GITHUB_REF/refs\/tags\//}"
-          git push
-
-  homebrew:
-    name: Homebrew
+  packages:
+    name: Packages
     runs-on: ubuntu-latest
     needs: github
     steps:
@@ -118,18 +96,42 @@ jobs:
         with:
           ref: main
 
-      - name: Update the formula version
-        run: perl -i -pe "s/version \".+\"/version \"${GITHUB_REF/refs\/tags\/v/}\"/ if $.==15" vdot.rb
-
-      - name: Update the macOS hash
-        run: perl -i -pe "s/sha256 \".+\"/sha256 \"${{ needs.github.outputs.sha256_macos }}\"/ if $.==19" vdot.rb
-
-      - name: Update the linux hash
-        run: perl -i -pe "s/sha256 \".+\"/sha256 \"${{ needs.github.outputs.sha256_linux }}\"/ if $.==22" vdot.rb
-
-      - name: Commit the changes
+      - name: Configure git
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git commit -am "chore: update Homebrew formula to ${GITHUB_REF/refs\/tags\//}"
-          git push
+          git checkout -b release-${{ steps.tag.outputs.tag }}
+
+      - name: Update the version in Cargo.toml
+        run: perl -i -pe "s/version = \".+\"/version = \"${GITHUB_REF/refs\/tags\/v/}\"/ if $.==4" Cargo.toml
+
+      - name: Publish the Cargo package
+        run: cargo publish --no-verify --allow-dirty
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Commit the Cargo.toml changes
+        run: |
+          git add Cargo.toml
+          git commit -m "chore: update Cargo.toml version to ${{ steps.tag.outputs.tag }}"
+
+      - name: Update the Homebrew formula version
+        run: perl -i -pe "s/version \".+\"/version \"${GITHUB_REF/refs\/tags\/v/}\"/ if $.==15" vdot.rb
+
+      - name: Update the Homebrew macOS hash
+        run: perl -i -pe "s/sha256 \".+\"/sha256 \"${{ needs.github.outputs.sha256_macos }}\"/ if $.==19" vdot.rb
+
+      - name: Update the Homebrew linux hash
+        run: perl -i -pe "s/sha256 \".+\"/sha256 \"${{ needs.github.outputs.sha256_linux }}\"/ if $.==22" vdot.rb
+
+      - name: Commit the vdot.rb changes
+        run: |
+          git add vdot.rb
+          git commit -m "chore: update Homebrew formula to ${GITHUB_REF/refs\/tags\//}"
+          
+      - name: Open the pull request
+        run: |
+          git push origin release-${{ steps.tag.outputs.tag }}
+          gh pr create --title "Release ${{ steps.tag.outputs.tag }}" --fill --reviewer "${{ github.actor }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
