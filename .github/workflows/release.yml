@@ -92,15 +92,15 @@ jobs:
         with:
           ref: main
 
+      - name: Get the git tag
+        id: tag
+        run: echo "tag=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
+
       - name: Configure git
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git checkout -b release-${{ steps.tag.outputs.tag }}
-          
-      - name: Get the git tag
-        id: tag
-        run: echo "tag=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_OUTPUT
 
       - name: Update the version in Cargo.toml
         run: perl -i -pe "s/version = \".+\"/version = \"${GITHUB_REF/refs\/tags\/v/}\"/ if $.==4" Cargo.toml
