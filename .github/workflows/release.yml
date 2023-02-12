@@ -76,9 +76,7 @@ jobs:
         run: echo "sha256=$(openssl dgst -sha256 "target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.target }}.zip" | cut -d ' ' -f 2)" >> $GITHUB_OUTPUT
 
       - name: Upload artifacts to GitHub release
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: shogo82148/actions-upload-release-asset@v1
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: target/vdot-${{ steps.tag.outputs.tag }}-${{ matrix.target }}.zip
